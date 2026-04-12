@@ -1,0 +1,2044 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Heels Catalog</title>
+    <style>
+      :root {
+        /* Cosmos-inspired, but custom */
+        --bg: #f6f5f3;
+        --panel: rgba(255, 255, 255, 0.92);
+        --panel2: rgba(255, 255, 255, 0.72);
+        --text: rgba(13, 13, 13, 0.92);
+        --muted: rgba(13, 13, 13, 0.6);
+        --border: rgba(13, 13, 13, 0.12);
+        --accent: #0d0d0d;
+        --shadow: 0 1px 2px rgba(13, 13, 13, 0.08), 0 12px 32px rgba(13, 13, 13, 0.08);
+        --gridColWidth: 340px;
+        --gridGap: 14px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        margin: 0;
+        color: var(--text);
+        background: var(--bg);
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei",
+          Arial, sans-serif;
+        letter-spacing: 0.1px;
+      }
+
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        backdrop-filter: blur(10px);
+        background: rgba(246, 245, 243, 0.86);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .wrap {
+        max-width: 1480px;
+        margin: 0 auto;
+        padding: 18px;
+      }
+
+      .titlebar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      h1 {
+        font-size: 18px;
+        margin: 0;
+        letter-spacing: 0.2px;
+      }
+
+      .count {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 18px;
+        align-items: start;
+      }
+
+      @media (max-width: 980px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        position: sticky;
+        top: 72px;
+      }
+
+      .panel h2 {
+        margin: 0;
+        font-size: 14px;
+        color: var(--muted);
+        padding: 14px 14px 10px;
+        border-bottom: 1px solid rgba(13, 13, 13, 0.08);
+      }
+
+      .panel .content {
+        padding: 12px 14px 14px;
+        max-height: calc(100vh - 96px);
+        overflow: auto;
+      }
+
+      .row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .field {
+        display: grid;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+
+      label {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      input[type="text"] {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(13, 13, 13, 0.14);
+        color: var(--text);
+        outline: none;
+      }
+
+      input[type="text"]:focus {
+        border-color: rgba(13, 13, 13, 0.35);
+        box-shadow: 0 0 0 4px rgba(13, 13, 13, 0.08);
+      }
+
+      .btn {
+        cursor: pointer;
+        border: 1px solid rgba(13, 13, 13, 0.14);
+        color: var(--text);
+        padding: 9px 10px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.72);
+        font-size: 13px;
+      }
+
+      .btn:hover {
+        background: rgba(255, 255, 255, 0.92);
+      }
+
+      .group {
+        border: 1px solid rgba(13, 13, 13, 0.1);
+        background: rgba(255, 255, 255, 0.62);
+        border-radius: 12px;
+        padding: 10px;
+      }
+
+      .groupTitle {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+
+      .checks {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px 12px;
+        max-height: 180px;
+        overflow: auto;
+        padding-right: 6px;
+      }
+
+      .check {
+        display: grid;
+        grid-template-columns: 16px 1fr auto;
+        gap: 10px;
+        align-items: center;
+        font-size: 13px;
+        min-width: 0;
+      }
+
+      .check input {
+        accent-color: var(--accent);
+        width: 16px;
+        height: 16px;
+      }
+
+      .optText {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .optCount {
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: rgba(13, 13, 13, 0.06);
+        border: 1px solid rgba(13, 13, 13, 0.12);
+        color: rgba(13, 13, 13, 0.62);
+      }
+
+      .optCount.zero {
+        opacity: 0.55;
+      }
+
+      @media (max-width: 980px) {
+        .panel {
+          position: static;
+        }
+        .checks {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .checks {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .rangeRow {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .rangeBox {
+        display: grid;
+        gap: 8px;
+        padding: 10px;
+        border-radius: 12px;
+        border: 1px solid rgba(13, 13, 13, 0.1);
+        background: rgba(255, 255, 255, 0.62);
+      }
+
+      .rangeBox .val {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      input[type="range"] {
+        width: 100%;
+      }
+
+      .grid {
+        /* Pinterest-like masonry (no cropping, variable heights) */
+        column-width: var(--gridColWidth);
+        column-gap: var(--gridGap);
+        column-fill: balance;
+      }
+
+      @media (max-width: 1100px) {
+        :root { --gridColWidth: 320px; }
+      }
+
+      @media (max-width: 640px) {
+        :root { --gridColWidth: 260px; }
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        display: inline-block;
+        width: 100%;
+        margin: 0 0 14px;
+        break-inside: avoid;
+        transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+      }
+
+      .card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(13, 13, 13, 0.22);
+        box-shadow: 0 2px 8px rgba(13, 13, 13, 0.12), 0 18px 44px rgba(13, 13, 13, 0.10);
+      }
+
+      .thumbList {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.72);
+        padding: 10px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .thumbItem {
+        border: 1px solid rgba(13, 13, 13, 0.1);
+        border-radius: 12px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.95);
+      }
+
+      .thumbItem:last-child {
+        border-bottom: none;
+      }
+
+      .thumbItem img {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      .meta {
+        padding: 12px 12px 14px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .filename {
+        font-size: 13px;
+        color: var(--text);
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: baseline;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 18px;
+        min-width: 18px;
+        padding: 0 6px;
+        border-radius: 999px;
+        font-size: 11px;
+        color: rgba(13, 13, 13, 0.78);
+        background: rgba(13, 13, 13, 0.06);
+        border: 1px solid rgba(13, 13, 13, 0.12);
+      }
+
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .tag {
+        font-size: 12px;
+        color: rgba(13, 13, 13, 0.82);
+        background: rgba(13, 13, 13, 0.06);
+        border: 1px solid rgba(13, 13, 13, 0.12);
+        padding: 6px 8px;
+        border-radius: 999px;
+      }
+
+      .tag.muted {
+        background: rgba(255, 255, 255, 0.7);
+        border-color: rgba(13, 13, 13, 0.12);
+      }
+
+      .empty {
+        padding: 18px;
+        color: var(--muted);
+        border: 1px dashed rgba(13, 13, 13, 0.22);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.6);
+      }
+
+      .presetsBar {
+        /* Disabled (user requested to remove quick preset cards) */
+        display: none;
+        gap: 12px;
+        align-items: stretch;
+        overflow: auto;
+        padding: 2px;
+        margin-bottom: 14px;
+      }
+
+      .presetBtn {
+        cursor: pointer;
+        user-select: none;
+        min-width: 140px;
+        display: grid;
+        gap: 10px;
+        padding: 12px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.72);
+        border: 1px solid rgba(13, 13, 13, 0.12);
+        box-shadow: 0 8px 20px rgba(13, 13, 13, 0.08);
+        color: var(--text);
+        text-align: left;
+      }
+
+      .presetBtn:hover {
+        border-color: rgba(13, 13, 13, 0.22);
+        background: rgba(255, 255, 255, 0.92);
+      }
+
+      .presetBtn.active {
+        border-color: rgba(13, 13, 13, 0.35);
+        box-shadow: 0 12px 30px rgba(13, 13, 13, 0.14);
+        background: rgba(255, 255, 255, 0.96);
+      }
+
+      .presetTop {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .presetTitle {
+        font-size: 13px;
+        letter-spacing: 0.2px;
+      }
+
+      .presetHint {
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      .presetIcon {
+        width: 52px;
+        height: 52px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        background: rgba(13, 13, 13, 0.06);
+        border: 1px solid rgba(13, 13, 13, 0.12);
+      }
+
+      .presetIcon img {
+        width: 42px;
+        height: 42px;
+        display: block;
+        opacity: 0.95;
+        filter: none;
+      }
+
+      .presetBtn.active .presetIcon img {
+        filter: none;
+      }
+
+      a.small {
+        font-size: 12px;
+        color: rgba(13, 13, 13, 0.62);
+        text-decoration: none;
+      }
+      a.small:hover {
+        color: rgba(13, 13, 13, 0.85);
+      }
+
+      .drawerOverlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(13, 13, 13, 0.28);
+        backdrop-filter: blur(6px);
+        z-index: 30;
+        display: none;
+      }
+
+      .drawer {
+        position: fixed;
+        top: 0;
+        right: 0;
+        height: 100%;
+        width: min(520px, 92vw);
+        z-index: 31;
+        display: none;
+        background: rgba(255, 255, 255, 0.9);
+        border-left: 1px solid rgba(13, 13, 13, 0.12);
+        box-shadow: 0 18px 60px rgba(13, 13, 13, 0.18);
+      }
+
+      .drawerHeader {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 12px 14px;
+        border-bottom: 1px solid rgba(13, 13, 13, 0.12);
+        background: rgba(255, 255, 255, 0.8);
+      }
+
+      .drawerTitle {
+        font-size: 13px;
+        color: rgba(13, 13, 13, 0.9);
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+      }
+
+      .drawerBody {
+        padding: 14px;
+        height: calc(100% - 52px);
+        overflow: auto;
+      }
+
+      .detailImg {
+        width: 100%;
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid rgba(13, 13, 13, 0.12);
+        background: rgba(13, 13, 13, 0.04);
+      }
+
+      .detailImg img {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      .thumbsRow {
+        display: flex;
+        gap: 8px;
+        overflow: auto;
+        padding: 10px 2px 2px;
+      }
+
+      .thumbBtn {
+        cursor: pointer;
+        border: 1px solid rgba(13, 13, 13, 0.12);
+        background: rgba(13, 13, 13, 0.03);
+        border-radius: 12px;
+        padding: 0;
+        line-height: 0;
+        flex: 0 0 auto;
+      }
+
+      .thumbBtn.active {
+        border-color: rgba(13, 13, 13, 0.35);
+        box-shadow: 0 10px 22px rgba(13, 13, 13, 0.12);
+      }
+
+      .thumbBtn img {
+        width: 84px;
+        height: auto;
+        display: block;
+        border-radius: 12px;
+      }
+
+      .subTitle {
+        margin-top: 14px;
+        margin-bottom: 10px;
+        font-size: 12px;
+        color: rgba(13, 13, 13, 0.62);
+      }
+
+      .relGrid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .relCard {
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(13, 13, 13, 0.12);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      .relCard:hover {
+        border-color: rgba(13, 13, 13, 0.22);
+        box-shadow: 0 10px 26px rgba(13, 13, 13, 0.12);
+      }
+
+      .relCard img {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      .relMeta {
+        padding: 10px 10px 12px;
+        display: grid;
+        gap: 8px;
+      }
+
+      .relName {
+        font-size: 12px;
+        color: rgba(13, 13, 13, 0.86);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="wrap titlebar">
+        <h1>鞋子資料 / 可篩選</h1>
+        <div class="count" id="count">—</div>
+      </div>
+    </header>
+
+    <div class="wrap layout">
+      <section class="panel">
+        <h2>Filters</h2>
+        <div class="content">
+          <div class="field">
+            <div class="row" style="justify-content: space-between; align-items: center">
+              <label for="q">搜尋（檔名/屬性）</label>
+              <button class="btn" id="reset">重設</button>
+            </div>
+            <input id="q" type="text" placeholder="例如：黑 / 細跟 / 露趾 / T字帶…" />
+          </div>
+
+          <div class="field">
+            <div class="rangeBox">
+              <label for="sizeRange">圖片大小（欄寬）</label>
+              <div class="rangeRow" style="grid-template-columns: 1fr auto">
+                <input id="sizeRange" type="range" min="220" max="520" step="10" />
+                <div class="val"><span id="sizeVal">—</span>px</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="rangeBox">
+              <div class="row" style="justify-content: space-between; align-items: center">
+                <label for="colRange">欄數</label>
+                <label class="check" style="margin: 0; gap: 8px">
+                  <input id="autoCols" type="checkbox" />
+                  <span style="color: rgba(13,13,13,.62); font-size: 12px">自動</span>
+                </label>
+              </div>
+              <div class="rangeRow" style="grid-template-columns: 1fr auto">
+                <input id="colRange" type="range" min="1" max="6" step="1" />
+                <div class="val"><span id="colVal">—</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="group">
+              <div class="groupTitle">款式</div>
+              <div class="checks" id="styleChecks"></div>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="group">
+              <div class="groupTitle">鞋頭</div>
+              <div class="checks" id="toeChecks"></div>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="group">
+              <div class="groupTitle">鞋跟樣式</div>
+              <div class="checks" id="heelChecks"></div>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="group">
+              <div class="groupTitle">少見款式（*）</div>
+              <div class="checks" id="rareChecks"></div>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="group">
+              <div class="groupTitle">裝飾</div>
+              <div class="checks" id="decChecks"></div>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="group">
+              <div class="groupTitle">材質</div>
+              <div class="checks" id="matChecks"></div>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="group">
+              <div class="groupTitle">顏色</div>
+              <div class="checks" id="colorChecks"></div>
+            </div>
+          </div>
+
+          <div style="color: rgba(13, 13, 13, 0.55); font-size: 12px; line-height: 1.4">
+            圖片放在 <code>originals/</code>。要新增資料請改 <code>data.js</code>。
+          </div>
+        </div>
+      </section>
+
+      <main>
+        <div id="presets" class="presetsBar"></div>
+        <div id="grid" class="grid"></div>
+        <div id="empty" class="empty" style="display: none">沒有符合的項目</div>
+      </main>
+    </div>
+
+    <div id="drawerOverlay" class="drawerOverlay"></div>
+    <aside id="drawer" class="drawer" aria-hidden="true">
+      <div class="drawerHeader">
+        <div class="drawerTitle">
+          <span id="drawerFilename">—</span>
+          <a class="small" href="#" id="drawerCopy" title="複製檔名">copy</a>
+        </div>
+        <button class="btn" id="drawerClose" type="button">關閉</button>
+      </div>
+      <div class="drawerBody">
+        <div class="detailImg"><img id="drawerImg" alt="" loading="lazy" /></div>
+        <div id="drawerThumbs" class="thumbsRow"></div>
+        <div class="tags" id="drawerTags" style="margin-top: 12px"></div>
+        <div class="subTitle">相似推薦</div>
+        <div class="relGrid" id="drawerRelated"></div>
+      </div>
+    </aside>
+
+    <script src="./data.js"></script>
+    <script src="./data_unprocessed_manual.js"></script>
+    <script src="./data_imported_csv.js"></script>
+    <script src="./data_imported_ptt.js"></script>
+    <script src="./csv_tags_ptt.js"></script>
+    <script src="./csv_tags.js"></script>
+    <script>
+      const baseData = Array.isArray(window.SHOE_DATA) ? window.SHOE_DATA : [];
+      const importedData = Array.isArray(window.SHOE_DATA_IMPORTED) ? window.SHOE_DATA_IMPORTED : [];
+      const importedDataPtt = Array.isArray(window.SHOE_DATA_IMPORTED_PTT) ? window.SHOE_DATA_IMPORTED_PTT : [];
+
+      function dedupeByFilename(items) {
+        const out = [];
+        const seen = new Set();
+        for (const it of items) {
+          const fn = (it?.filename ?? "").toString().trim().toLowerCase();
+          if (!fn) continue;
+          if (seen.has(fn)) continue;
+          seen.add(fn);
+          out.push(it);
+        }
+        return out;
+      }
+
+      const rawData = dedupeByFilename(baseData.concat(importedData, importedDataPtt));
+      const tagsPtt =
+        window.CSV_TAGS_PTT && window.CSV_TAGS_PTT.tagsByCode && typeof window.CSV_TAGS_PTT.tagsByCode === "object"
+          ? window.CSV_TAGS_PTT.tagsByCode
+          : {};
+      const tagsCoded =
+        window.CSV_TAGS && window.CSV_TAGS.tagsByCode && typeof window.CSV_TAGS.tagsByCode === "object" ? window.CSV_TAGS.tagsByCode : {};
+      // Priority: coded CSV overrides ptt CSV for same code
+      const csvTagsByCode = { ...tagsPtt, ...tagsCoded };
+
+      function codeFromFilename(filename) {
+        const fn = (filename ?? "").toString().trim();
+        if (!fn) return "";
+        const noExt = fn.replace(/\.[^.]+$/, "");
+        const base = noExt.split(".")[0];
+        return base.toUpperCase();
+      }
+
+      function toArray(v) {
+        if (!v) return [];
+        if (Array.isArray(v)) return v.map((x) => (x ?? "").toString().trim()).filter(Boolean);
+        return [(v ?? "").toString().trim()].filter(Boolean);
+      }
+
+      function mergeArray(existing, incoming) {
+        const a = toArray(existing);
+        const b = toArray(incoming);
+        if (b.length === 0) return existing;
+        if (a.length === 0) return incoming;
+        const out = [];
+        const seen = new Set();
+        for (const x of a.concat(b)) {
+          const k = x.toLowerCase();
+          if (seen.has(k)) continue;
+          seen.add(k);
+          out.push(x);
+        }
+        return out.length === 1 ? out[0] : out;
+      }
+
+      function mergeArrayToArray(existing, incoming) {
+        const a = toArray(existing);
+        const b = toArray(incoming);
+        if (a.length === 0 && b.length === 0) return [];
+        const out = [];
+        const seen = new Set();
+        for (const x of a.concat(b)) {
+          const k = (x ?? "").toString().trim();
+          if (!k) continue;
+          const kk = k.toLowerCase();
+          if (seen.has(kk)) continue;
+          seen.add(kk);
+          out.push(k);
+        }
+        return out;
+      }
+
+      function mergeCsvTags(item) {
+        const code = codeFromFilename(item?.filename);
+        if (!code) return item;
+        const t = csvTagsByCode[code];
+        if (!t) return item;
+
+        const next = { ...item };
+        // CSV is the source of truth for tags; apply whenever present.
+        if (t.style) next.style = t.style;
+        if (t.toe) next.toe = t.toe;
+        if (t.heelStyle) next.heelStyle = t.heelStyle;
+        if (t.materialSimple) next.materialSimple = t.materialSimple;
+        if (t.color) {
+          next.colorRaw = t.color;
+          next.color = t.color; // keep CSV color rules as-is
+        }
+        if (t.decoration) next.decoration = t.decoration;
+        if (t.rare) next.rare = t.rare;
+        return next;
+      }
+
+      function splitDecorationParts(text) {
+        let s = (text ?? "").toString().trim();
+        if (!s) return [];
+
+        // Fix cases like "蝴/蝶/結" -> "蝴蝶結" (slash/comma used between Han characters)
+        const han = "[\\u4E00-\\u9FFF]";
+        const rxSlash = new RegExp(`(${han})\\s*[/／]\\s*(${han})`, "g");
+        const rxComma = new RegExp(`(${han})\\s*[,，]\\s*(${han})`, "g");
+        while (rxSlash.test(s)) s = s.replace(rxSlash, "$1$2");
+        while (rxComma.test(s)) s = s.replace(rxComma, "$1$2");
+
+        // Split decorations by newline / ideographic comma / semicolons / pipes.
+        // Note: "/" and "," are treated as readability separators (not tag separators),
+        // so we do NOT split on them. We instead detect allowed decorations by regex.
+        return s
+          .split(/[\r\n、;；]+|\s+\|\s+/g)
+          .map((x) => x.trim())
+          .filter(Boolean);
+      }
+
+      function normalizeMultiValue(v, splitFn) {
+        const out = [];
+        const seen = new Set();
+        const push = (x) => {
+          const t = (x ?? "").toString().trim();
+          if (!t) return;
+          const key = t.toLowerCase();
+          if (seen.has(key)) return;
+          seen.add(key);
+          out.push(t);
+        };
+
+        if (Array.isArray(v)) {
+          for (const x of v) for (const p of splitFn(x)) push(p);
+        } else {
+          for (const p of splitFn(v)) push(p);
+        }
+        return out;
+      }
+
+      function fmtMulti(v) {
+        if (Array.isArray(v)) return v.filter(Boolean).join(" / ");
+        return (v ?? "").toString().trim();
+      }
+
+      const STYLE_ORDER = ["包鞋", "拖鞋", "涼鞋", "長靴", "短靴", "踝靴"];
+
+      function normalizeStyleAllowed(style, toe) {
+        const s = fmtMulti(style);
+        const t = fmtMulti(toe);
+        const out = [];
+        const seen = new Set();
+        const add = (x) => {
+          if (!x) return;
+          if (seen.has(x)) return;
+          seen.add(x);
+          out.push(x);
+        };
+
+        // Boots (can co-exist with pumps in CSV)
+        if (/(過膝|膝|長筒|長靴)/.test(s)) add("長靴");
+        if (/(踝靴|踝)/.test(s)) add("踝靴");
+        if (/(短靴|短筒)/.test(s)) add("短靴");
+        else if (/靴/.test(s)) add("短靴");
+
+        // Sandals / slippers
+        if (/(拖鞋|拖)/.test(s)) add("拖鞋");
+        if (/(涼鞋|涼拖|涼)/.test(s)) add("涼鞋");
+        // Only infer sandals from toe when style is not explicitly set (e.g. open-toe boots exist).
+        if (!/(包鞋|高跟鞋|包頭|涼鞋|涼拖|拖鞋|靴)/.test(s) && /(露趾|魚頭)/.test(t)) add("涼鞋");
+
+        // Pumps
+        if (/(包鞋|高跟鞋|包頭)/.test(s)) add("包鞋");
+
+        if (!out.length) add("包鞋");
+        out.sort((a, b) => STYLE_ORDER.indexOf(a) - STYLE_ORDER.indexOf(b));
+        return out;
+      }
+
+      const TOE_ORDER = ["尖頭", "露趾", "魚頭", "圓頭", "方頭"];
+
+      function normalizeToeAllowed(toe, style) {
+        const s = fmtMulti(style);
+        const t = fmtMulti(toe);
+        const out = [];
+        const seen = new Set();
+        const add = (x) => {
+          if (!x) return;
+          if (seen.has(x)) return;
+          seen.add(x);
+          out.push(x);
+        };
+
+        if (/(尖)/.test(t)) add("尖頭");
+        if (/(方)/.test(t)) add("方頭");
+        if (/(圓|圆)/.test(t)) add("圓頭");
+        if (/(露趾|露指|open\s*toe)/i.test(t)) add("露趾");
+        if (/(魚口|鱼口|魚嘴|鱼嘴|peep|魚頭)/i.test(t)) add("魚頭");
+
+        // If toe not provided, keep empty. (We avoid guessing.)
+        // But for slippers/sandals, "露趾" is the most common.
+        if (!out.length && (/(涼鞋|拖鞋)/.test(s))) add("露趾");
+
+        out.sort((a, b) => TOE_ORDER.indexOf(a) - TOE_ORDER.indexOf(b));
+        return out;
+      }
+
+      const HEELSTYLE_ORDER = ["平底", "坡跟", "厚底", "細跟", "粗跟"];
+
+      function normalizeHeelStylesAllowed(v) {
+        const raw = toArray(v);
+        const out = [];
+        const seen = new Set();
+        const add = (x) => {
+          if (!x) return;
+          if (seen.has(x)) return;
+          seen.add(x);
+          out.push(x);
+        };
+
+        for (const token of raw) {
+          const s = (token ?? "").toString().trim();
+          if (!s) continue;
+
+          // Detect keywords without treating "/" or "," as tag separators.
+          if (/平底|平跟|flat/i.test(s)) add("平底");
+          if (/坡跟|楔跟|楔形|wedge/i.test(s)) add("坡跟");
+          if (/厚底|松糕|厚台|platform/i.test(s)) add("厚底");
+          // Sometimes "防水台" accidentally lands in heelStyle; treat it as厚底.
+          if (/防水台/.test(s)) add("厚底");
+          if (/細跟|细跟|stiletto/i.test(s)) add("細跟");
+          if (/粗跟|粗|block\s*heel|block/i.test(s)) add("粗跟");
+          if (/高跟|high\s*heel/i.test(s)) {
+            if (/粗/.test(s)) add("粗跟");
+            else add("細跟");
+          }
+        }
+
+        out.sort((a, b) => HEELSTYLE_ORDER.indexOf(a) - HEELSTYLE_ORDER.indexOf(b));
+        return out;
+      }
+
+      const DECOR_ORDER = [
+        "防水台",
+        "T字帶",
+        "一字帶",
+        "瑪莉珍",
+        "踝帶",
+        "側空",
+        "蝴蝶結",
+        "鍊子",
+        "金扣",
+        "金邊",
+        "紅底",
+      ];
+
+      const COLOR_ORDER = ["黑", "白", "紅", "桃紅", "金", "銀", "透明", "膚", "米", "灰", "棕", "其他"];
+
+      function normalizeColorsAllowed(v) {
+        const raw = toArray(v);
+        const out = [];
+        const seen = new Set();
+
+        const add = (x) => {
+          if (!x) return;
+          if (seen.has(x)) return;
+          seen.add(x);
+          out.push(x);
+        };
+
+        for (const token of raw) {
+          const s = (token ?? "").toString().trim();
+          if (!s) continue;
+
+          let matched = false;
+
+          // Keep CSV readability separators (/, ,) but map to canonical filter colors.
+          if (/透明|clear/i.test(s)) {
+            add("透明");
+            matched = true;
+          }
+          if (/黑/.test(s)) {
+            add("黑");
+            matched = true;
+          }
+          if (/白/.test(s)) {
+            add("白");
+            matched = true;
+          }
+          if (/銀|银|silv/i.test(s)) {
+            add("銀");
+            matched = true;
+          }
+          if (/金|gold/i.test(s)) {
+            add("金");
+            matched = true;
+          }
+          if (/桃紅|桃红|玫紅|玫红|fuchsia|magenta|hot\s*pink/i.test(s)) {
+            add("桃紅");
+            matched = true;
+          } else if (/紅|红|red/i.test(s)) {
+            add("紅");
+            matched = true;
+          }
+          if (/膚|肤|nude|skin/i.test(s)) {
+            add("膚");
+            matched = true;
+          }
+          if (/米|奶|象牙|ivory|beige/i.test(s)) {
+            add("米");
+            matched = true;
+          }
+          if (/灰|银灰|灰色|gray/i.test(s)) {
+            add("灰");
+            matched = true;
+          }
+          if (/棕|咖|啡|brown/i.test(s)) {
+            add("棕");
+            matched = true;
+          }
+
+          // Other colors (e.g. 橘/黃/綠/藍/紫/螢光...) should still be represented as "其他"
+          if (/橘|橙|黃|黄|綠|绿|藍|蓝|紫|螢光|荧光|霓虹|neon|orange|yellow|green|blue|purple/i.test(s)) {
+            add("其他");
+            matched = true;
+          }
+
+          if (!matched) add("其他");
+        }
+
+        out.sort((a, b) => COLOR_ORDER.indexOf(a) - COLOR_ORDER.indexOf(b));
+        return out;
+      }
+
+      function normalizeDecorationsAllowed(v) {
+        const raw = normalizeMultiValue(v, splitDecorationParts);
+        const out = [];
+        const seen = new Set();
+        const add = (x) => {
+          if (!x) return;
+          if (seen.has(x)) return;
+          seen.add(x);
+          out.push(x);
+        };
+
+        for (const token of raw) {
+          const s = (token ?? "").toString().trim();
+          if (!s) continue;
+
+          // Extract multiple decorations from a single token if present.
+          if (/防水台|厚底|台(?!灣)/.test(s)) add("防水台");
+          if (/T字帶|丁字帶|T\s*字|丁\s*字/i.test(s)) add("T字帶");
+          if (/一字帶|一字(帶)?/i.test(s)) add("一字帶");
+          if (/瑪莉珍|瑪麗珍|玛丽珍|mary\s*jane/i.test(s)) add("瑪莉珍");
+          if (/金邊|金色邊|金邊飾|金框/i.test(s)) add("金邊");
+          if (/蝴蝶結|蝴結|蝴蝶/.test(s)) add("蝴蝶結");
+          if (/紅底|红底|red\s*sole|louboutin/i.test(s)) add("紅底");
+          if (/踝帶|腳踝帶|踝繫|ankle\s*strap|ankle-strap/i.test(s)) add("踝帶");
+          if (/金扣|金釦|金扣環/i.test(s)) add("金扣");
+          if (/側空|侧空|側鏤空|侧镂空|鏤空|镂空/i.test(s)) add("側空");
+          if (/鍊子|鏈子|鍊條|鏈條|链条|chain/i.test(s)) add("鍊子");
+        }
+
+        out.sort((a, b) => DECOR_ORDER.indexOf(a) - DECOR_ORDER.indexOf(b));
+        return out;
+      }
+
+      function normalizeLooseTags(item) {
+        const next = { ...item };
+        next.colorRaw = (next.colorRaw ?? next.color);
+        const styles = normalizeStyleAllowed(next.style, next.toe);
+        next.style = styles.length === 1 ? styles[0] : styles;
+        const toes = normalizeToeAllowed(next.toe, next.style);
+        next.toe = toes.length === 1 ? toes[0] : toes;
+        const hs = normalizeHeelStylesAllowed(next.heelStyle);
+        next.heelStyle = hs.length === 1 ? hs[0] : hs;
+        next.color = normalizeColorsAllowed(next.color);
+        const decs = normalizeDecorationsAllowed(next.decoration);
+        next.decoration = decs.length ? decs : [];
+        if (next.rare === true) next.rare = "少見款式";
+        return next;
+      }
+
+      const $ = (sel) => document.querySelector(sel);
+
+      function deriveHeelHeight(heelHeightCm) {
+        const h = Number(heelHeightCm);
+        if (!Number.isFinite(h)) return "";
+        if (h < 1.5) return "平底";
+        if (h < 5) return "低跟";
+        if (h < 8) return "中跟";
+        if (h < 11) return "高跟";
+        return "超高跟";
+      }
+
+      function deriveMaterialSimple(material) {
+        const s = (material ?? "").toString().toLowerCase();
+        if (!s) return "";
+        if (s.includes("麂皮") || s.includes("絨面")) return "麂皮";
+        if (s.includes("亮粉") || s.includes("閃") || s.includes("金屬")) return "亮粉";
+        if (s.includes("漆皮") || s.includes("亮面") || s.includes("鏡面")) return "漆皮";
+        if (s.includes("霧面") || s.includes("皮革") || s.includes("人造皮") || s.includes("皮")) return "霧面皮";
+        return "";
+      }
+
+      const mergedRawData = rawData.map(mergeCsvTags).map(normalizeLooseTags);
+      const ungrouped = mergedRawData.map((item) => {
+        const heelHeight = (item?.heelHeight ?? "").toString().trim() || deriveHeelHeight(item?.heelHeightCm);
+        const materialSimple = (item?.materialSimple ?? "").toString().trim() || deriveMaterialSimple(item?.material);
+        return {
+          ...item,
+          heelHeight,
+          materialSimple,
+        };
+      });
+
+      function variantOrder(filename) {
+        const fn = (filename ?? "").toString().trim();
+        if (!fn) return 9999;
+        const noExt = fn.replace(/\.[^.]+$/, "");
+        const parts = noExt.split(".");
+        if (parts.length <= 1) return 0;
+        const suf = parts[parts.length - 1];
+        if (/^\d+$/.test(suf)) return Number(suf);
+        return 9999;
+      }
+
+      function groupByCode(items) {
+        const map = new Map();
+        for (const it of items) {
+          const code = codeFromFilename(it?.filename) || (it?.id ?? "").toString().trim().toUpperCase();
+          if (!code) continue;
+
+          let g = map.get(code);
+          if (!g) {
+            g = {
+              id: code,
+              code,
+              filenames: [],
+              variants: [],
+              style: [],
+              toe: [],
+              heelStyle: [],
+              heelHeight: "",
+              materialSimple: "",
+              color: [],
+              colorRaw: "",
+              decoration: [],
+              rare: "",
+            };
+            map.set(code, g);
+          }
+
+          const img = (it?.image ?? it?.thumb ?? "").toString();
+          g.filenames.push(it.filename);
+          g.variants.push({
+            filename: it.filename,
+            image: img,
+            thumb: (it?.thumb ?? img).toString(),
+            objectPosition: (it?.objectPosition ?? "50% 50%").toString(),
+          });
+
+          if (it.style) g.style = mergeArrayToArray(g.style, it.style);
+          if (it.toe) g.toe = mergeArrayToArray(g.toe, it.toe);
+          const heelStyles = normalizeHeelStylesAllowed(it.heelStyle);
+          if (heelStyles.length) g.heelStyle = mergeArrayToArray(g.heelStyle, heelStyles);
+          if (!g.heelHeight && it.heelHeight) g.heelHeight = it.heelHeight;
+          if (!g.materialSimple && it.materialSimple) g.materialSimple = it.materialSimple;
+          if (!g.rare && it.rare) g.rare = (it.rare === true ? "少見款式" : it.rare);
+          if (!g.colorRaw && (it.colorRaw || it.color)) g.colorRaw = (it.colorRaw || it.color);
+
+          const colors = normalizeColorsAllowed(it.color);
+          if (colors.length) g.color = normalizeColorsAllowed((g.color || []).concat(colors));
+          const decs = normalizeDecorationsAllowed(it.decoration);
+          if (decs.length) g.decoration = normalizeDecorationsAllowed((g.decoration || []).concat(decs));
+        }
+
+        const out = Array.from(map.values());
+        for (const g of out) {
+          g.filenames = toArray(g.filenames);
+          g.variants.sort(
+            (a, b) => (variantOrder(a.filename) - variantOrder(b.filename)) || String(a.filename).localeCompare(String(b.filename))
+          );
+          const cover = g.variants[0] || {};
+          g.filename = g.code;
+          g.image = (cover.image ?? cover.thumb ?? "").toString();
+          g.thumb = (cover.thumb ?? "").toString();
+          g.objectPosition = (cover.objectPosition ?? "50% 50%").toString();
+          if (!Array.isArray(g.color)) g.color = normalizeColorsAllowed(g.color);
+          if (!Array.isArray(g.heelStyle)) {
+            const hs = normalizeHeelStylesAllowed(g.heelStyle);
+            g.heelStyle = hs.length === 1 ? hs[0] : hs;
+          }
+          if (!Array.isArray(g.decoration)) g.decoration = normalizeDecorationsAllowed(g.decoration);
+          if (Array.isArray(g.style)) {
+            const s = normalizeStyleAllowed(g.style, g.toe);
+            g.style = s.length === 1 ? s[0] : s;
+          }
+          if (Array.isArray(g.toe)) {
+            const t = normalizeToeAllowed(g.toe, g.style);
+            g.toe = t.length === 1 ? t[0] : t;
+          }
+        }
+        out.sort((a, b) => String(a.code).localeCompare(String(b.code)));
+        return out;
+      }
+
+      const data = groupByCode(ungrouped);
+      const gridEl = $("#grid");
+      const presetsEl = $("#presets");
+      const emptyEl = $("#empty");
+      const countEl = $("#count");
+      const qEl = $("#q");
+      const resetEl = $("#reset");
+      const sizeRangeEl = $("#sizeRange");
+      const sizeValEl = $("#sizeVal");
+      const colRangeEl = $("#colRange");
+      const colValEl = $("#colVal");
+      const autoColsEl = $("#autoCols");
+      const drawerOverlayEl = $("#drawerOverlay");
+      const drawerEl = $("#drawer");
+      const drawerFilenameEl = $("#drawerFilename");
+      const drawerCopyEl = $("#drawerCopy");
+      const drawerCloseEl = $("#drawerClose");
+      const drawerImgEl = $("#drawerImg");
+      const drawerThumbsEl = $("#drawerThumbs");
+      const drawerTagsEl = $("#drawerTags");
+      const drawerRelatedEl = $("#drawerRelated");
+      let drawerCopyValue = "";
+
+      const STORAGE_KEY = "heels_catalog_filters_v1";
+      const UI_KEY = "heels_catalog_ui_v1";
+      let isRestoringState = false;
+
+      const groups = [
+        { key: "style", title: "款式", mount: $("#styleChecks") },
+        { key: "toe", title: "鞋頭", mount: $("#toeChecks") },
+        { key: "heelStyle", title: "鞋跟樣式", mount: $("#heelChecks") },
+        { key: "rare", title: "少見款式", mount: $("#rareChecks") },
+        { key: "decoration", title: "裝飾", mount: $("#decChecks") },
+        { key: "materialSimple", title: "材質", mount: $("#matChecks") },
+        { key: "color", title: "顏色", mount: $("#colorChecks") },
+      ];
+
+      const selected = Object.fromEntries(groups.map((g) => [g.key, new Set()]));
+
+      function checkboxId(groupKey, value) {
+        return `chk_${groupKey}_${btoa(unescape(encodeURIComponent(value))).replace(/=+$/g, "")}`;
+      }
+
+      function setCheckboxChecked(groupKey, value, checked) {
+        const id = checkboxId(groupKey, value);
+        const el = document.getElementById(id);
+        if (el) el.checked = !!checked;
+      }
+
+      function clearAllSelections() {
+        qEl.value = "";
+        for (const g of groups) selected[g.key].clear();
+        for (const input of document.querySelectorAll('input[type="checkbox"]')) input.checked = false;
+      }
+
+      function applyPreset(preset) {
+        if (!preset) return;
+        clearAllSelections();
+
+        for (const [key, values] of Object.entries(preset.filters || {})) {
+          const arr = Array.isArray(values) ? values : [values];
+          for (const v of arr) {
+            if (!v) continue;
+            selected[key].add(v);
+            setCheckboxChecked(key, v, true);
+          }
+        }
+
+        apply();
+        saveState();
+        setActivePreset(preset.id);
+      }
+
+      function setActivePreset(id) {
+        for (const btn of presetsEl.querySelectorAll("[data-preset]")) {
+          btn.classList.toggle("active", btn.getAttribute("data-preset") === id);
+        }
+      }
+
+      function inferActivePreset() {
+        const q = (qEl.value ?? "").toString().trim();
+        if (q) return setActivePreset("");
+
+        for (const p of presets) {
+          const filters = p.filters || {};
+          let ok = true;
+          for (const g of groups) {
+            const want = new Set([].concat(filters[g.key] || []).filter(Boolean));
+            const have = selected[g.key] || new Set();
+            if (want.size !== have.size) {
+              ok = false;
+              break;
+            }
+            for (const v of want) {
+              if (!have.has(v)) {
+                ok = false;
+                break;
+              }
+            }
+            if (!ok) break;
+          }
+          if (ok) {
+            setActivePreset(p.id);
+            return;
+          }
+        }
+        setActivePreset("");
+      }
+
+      function iconSvg(kind) {
+        const stroke = "rgba(13,13,13,0.88)";
+        const fill = "rgba(13,13,13,0.06)";
+        // Simple silhouettes (not photo-based)
+        if (kind === "pump_point") {
+          return `
+            <svg viewBox="0 0 64 64" fill="none">
+              <path d="M12 38c10-2 17-10 25-17 6-5 14-4 18 2 3 5 1 11-4 14-9 5-19 8-39 9Z" fill="${fill}" stroke="${stroke}" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M47 39v13c0 2 2 3 4 3h1V40" stroke="${stroke}" stroke-width="2" stroke-linecap="round"/>
+            </svg>`;
+        }
+        if (kind === "pump_round") {
+          return `
+            <svg viewBox="0 0 64 64" fill="none">
+              <path d="M12 38c8-1 15-7 22-13 7-6 16-6 21 1 3 4 2 10-2 14-7 7-19 9-41 10Z" fill="${fill}" stroke="${stroke}" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M46 39v13c0 2 2 3 4 3h1V40" stroke="${stroke}" stroke-width="2" stroke-linecap="round"/>
+            </svg>`;
+        }
+        if (kind === "sandal") {
+          return `
+            <svg viewBox="0 0 64 64" fill="none">
+              <path d="M14 40c12-1 18-7 24-12 6-5 13-4 18 2 4 6 1 13-6 16-9 4-18 6-36 7Z" fill="${fill}" stroke="${stroke}" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M26 25l10 10" stroke="${stroke}" stroke-width="2" stroke-linecap="round"/>
+              <path d="M40 22l-9 13" stroke="${stroke}" stroke-width="2" stroke-linecap="round"/>
+              <path d="M47 40v12c0 2 2 3 4 3h1V41" stroke="${stroke}" stroke-width="2" stroke-linecap="round"/>
+            </svg>`;
+        }
+        if (kind === "boot") {
+          return `
+            <svg viewBox="0 0 64 64" fill="none">
+              <path d="M22 10h18v24c0 7 5 10 10 10v10H18V22c0-6 2-9 4-12Z" fill="${fill}" stroke="${stroke}" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M18 54c0-6 4-10 10-10h22" stroke="${stroke}" stroke-width="2" stroke-linecap="round"/>
+            </svg>`;
+        }
+        // platform
+        return `
+          <svg viewBox="0 0 64 64" fill="none">
+            <path d="M12 38c10-2 17-10 25-17 6-5 14-4 18 2 3 5 1 11-4 14-9 5-19 8-39 9Z" fill="${fill}" stroke="${stroke}" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M16 46h34v8H14c-2 0-2-8 2-8Z" fill="rgba(124,92,255,0.22)" stroke="${stroke}" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M47 39v13c0 2 2 3 4 3h1V40" stroke="${stroke}" stroke-width="2" stroke-linecap="round"/>
+          </svg>`;
+      }
+
+      function uniqValues(key) {
+        const set = new Set();
+        for (const item of data) {
+          const raw = item?.[key];
+          if (Array.isArray(raw)) {
+            for (const x of raw) {
+              const v = (x ?? "").toString().trim();
+              if (v) set.add(v);
+            }
+          } else {
+            const v = (raw ?? "").toString().trim();
+            if (v) set.add(v);
+          }
+        }
+        return Array.from(set).sort((a, b) => a.localeCompare(b, "zh-Hant"));
+      }
+
+      function renderChecks(group) {
+        const values = uniqValues(group.key);
+        group.mount.innerHTML = "";
+
+        if (!values.length) {
+          group.mount.innerHTML = `<div style="color: rgba(13,13,13,.55); font-size: 12px">（無）</div>`;
+          return;
+        }
+
+        for (const v of values) {
+          const id = checkboxId(group.key, v);
+          const row = document.createElement("label");
+          row.className = "check";
+          row.setAttribute("for", id);
+          row.setAttribute("data-group", group.key);
+          row.setAttribute("data-value", v);
+          row.innerHTML = `
+            <input id="${id}" type="checkbox" />
+            <span class="optText">${escapeHtml(v)}</span>
+            <span class="optCount" id="cnt_${id}">0</span>
+          `;
+          row.querySelector("input").addEventListener("change", (e) => {
+            if (e.target.checked) selected[group.key].add(v);
+            else selected[group.key].delete(v);
+            apply();
+            if (!isRestoringState) saveState();
+            inferActivePreset();
+          });
+          group.mount.appendChild(row);
+        }
+      }
+
+      function escapeHtml(s) {
+        return (s ?? "")
+          .toString()
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+      }
+
+      function inSelectedSet(key, value) {
+        const set = selected[key];
+        if (!set || set.size === 0) return true;
+        if (Array.isArray(value)) {
+          for (const x of value) {
+            const v = (x ?? "").toString().trim();
+            if (v && set.has(v)) return true;
+          }
+          return false;
+        }
+        return set.has((value ?? "").toString().trim());
+      }
+
+      function matchQuery(item, q) {
+        if (!q) return true;
+        const dec = fmtMulti(item?.decoration);
+        const col = fmtMulti(item?.colorRaw || item?.color);
+        const style = fmtMulti(item?.style);
+        const toe = fmtMulti(item?.toe);
+        const heel = fmtMulti(item?.heelStyle);
+        const names = Array.isArray(item?.filenames) ? item.filenames.join(" ") : item?.filename;
+        const hay = [
+          item?.code,
+          names,
+          style,
+          toe,
+          heel,
+          item?.rare,
+          dec,
+          item?.material,
+          item?.materialSimple,
+          col,
+        ]
+          .filter(Boolean)
+          .join(" / ")
+          .toLowerCase();
+        return hay.includes(q.toLowerCase());
+      }
+
+      function matchesFilters(item, q) {
+        return (
+          matchQuery(item, q) &&
+          inSelectedSet("style", item?.style) &&
+          inSelectedSet("toe", item?.toe) &&
+          inSelectedSet("heelStyle", item?.heelStyle) &&
+          inSelectedSet("rare", item?.rare) &&
+          inSelectedSet("decoration", item?.decoration) &&
+          inSelectedSet("materialSimple", item?.materialSimple) &&
+          inSelectedSet("color", item?.color)
+        );
+      }
+
+      function valuesFor(item, key) {
+        const raw = item?.[key];
+        if (Array.isArray(raw)) return raw.map((x) => (x ?? "").toString().trim()).filter(Boolean);
+        const v = (raw ?? "").toString().trim();
+        return v ? [v] : [];
+      }
+
+      function updateFacetUi(filteredItems) {
+        const items = Array.isArray(filteredItems) ? filteredItems : [];
+
+        const counts = Object.fromEntries(groups.map((g) => [g.key, new Map()]));
+        for (const it of items) {
+          for (const g of groups) {
+            for (const v of valuesFor(it, g.key)) {
+              const m = counts[g.key];
+              m.set(v, (m.get(v) || 0) + 1);
+            }
+          }
+        }
+
+        // Update labels: counts + auto-hide options with zero matches (keep selected visible).
+        for (const label of document.querySelectorAll('label.check[data-group][data-value]')) {
+          const key = label.getAttribute("data-group");
+          const value = label.getAttribute("data-value");
+          if (!key || !value) continue;
+
+          const id = checkboxId(key, value);
+          const cnt = (counts?.[key]?.get?.(value) ?? 0) | 0;
+          const cntEl = document.getElementById(`cnt_${id}`);
+          if (cntEl) {
+            cntEl.textContent = `${cnt}`;
+            cntEl.classList.toggle("zero", cnt === 0);
+          }
+
+          const isSel = !!(selected?.[key] && selected[key].has(value));
+          // Avoid hiding everything when result set is empty; user needs to see options to recover.
+          if (items.length === 0) {
+            label.style.display = "";
+          } else {
+            label.style.display = cnt === 0 && !isSel ? "none" : "";
+          }
+        }
+      }
+
+      function apply() {
+        const q = (qEl.value ?? "").trim();
+        const filtered = data.filter((item) => matchesFilters(item, q));
+        renderGrid(filtered);
+        countEl.textContent = `${filtered.length} / ${data.length}`;
+        updateFacetUi(filtered);
+      }
+
+      function readUi() {
+        try {
+          const raw = localStorage.getItem(UI_KEY);
+          if (!raw) return {};
+          const obj = JSON.parse(raw);
+          return obj && typeof obj === "object" ? obj : {};
+        } catch {
+          return {};
+        }
+      }
+
+      function writeUi(patch) {
+        const cur = readUi();
+        const next = { ...cur, ...(patch || {}) };
+        try {
+          localStorage.setItem(UI_KEY, JSON.stringify(next));
+        } catch {
+          // ignore
+        }
+      }
+
+      function setGridColWidth(px) {
+        const n = Number(px);
+        if (!Number.isFinite(n)) return;
+        const v = Math.max(220, Math.min(520, Math.round(n / 10) * 10));
+        document.documentElement.style.setProperty("--gridColWidth", `${v}px`);
+        if (sizeRangeEl) sizeRangeEl.value = `${v}`;
+        if (sizeValEl) sizeValEl.textContent = `${v}`;
+      }
+
+      function setGridColCount(count) {
+        const n = Math.max(1, Math.min(6, Math.round(Number(count) || 3)));
+        if (colRangeEl) colRangeEl.value = `${n}`;
+        if (colValEl) colValEl.textContent = `${n}`;
+      }
+
+      function approxColWidthPx(colCount) {
+        const n = Math.max(1, Math.min(6, Math.round(Number(colCount) || 3)));
+        const w = gridEl?.getBoundingClientRect?.().width || 0;
+        const gap = Number(getComputedStyle(gridEl).columnGap?.replace("px", "")) || 14;
+        if (!w) return null;
+        const px = Math.max(120, Math.floor((w - gap * (n - 1)) / n));
+        return px;
+      }
+
+      function applyGridMode(mode, colCount) {
+        const m = mode === "fixed" ? "fixed" : "auto";
+        const n = Math.max(1, Math.min(6, Math.round(Number(colCount) || 3)));
+
+        if (m === "fixed") {
+          gridEl.style.columnCount = `${n}`;
+          gridEl.style.columnWidth = "auto";
+          if (sizeRangeEl) sizeRangeEl.disabled = true;
+          const px = approxColWidthPx(n);
+          if (sizeValEl) sizeValEl.textContent = px ? `${px}` : "—";
+        } else {
+          gridEl.style.columnCount = "";
+          gridEl.style.columnWidth = "";
+          if (sizeRangeEl) sizeRangeEl.disabled = false;
+          // sizeValEl handled by setGridColWidth()
+        }
+
+        if (autoColsEl) autoColsEl.checked = m === "auto";
+        setGridColCount(n);
+      }
+
+      function tag(text, muted = false) {
+        return `<span class="tag ${muted ? "muted" : ""}">${escapeHtml(text)}</span>`;
+      }
+
+      function gatherTags(item) {
+        const tags = [];
+        for (const s of normalizeStyleAllowed(item?.style, item?.toe)) {
+          tags.push({ key: "style", value: s, label: `款式：${s}`, w: 3 });
+        }
+        for (const t of normalizeToeAllowed(item?.toe, item?.style)) {
+          tags.push({ key: "toe", value: t, label: `鞋頭：${t}`, w: 3 });
+        }
+        for (const h of normalizeHeelStylesAllowed(item?.heelStyle)) {
+          tags.push({ key: "heelStyle", value: h, label: `鞋跟：${h}`, w: 2 });
+        }
+        if (item?.rare) tags.push({ key: "rare", value: item.rare, label: `${item.rare}`, w: 1.5 });
+        if (item?.materialSimple)
+          tags.push({ key: "materialSimple", value: item.materialSimple, label: `材質：${item.materialSimple}`, w: 1 });
+        for (const c of normalizeColorsAllowed(item?.color)) {
+          tags.push({ key: "color", value: c, label: `顏色：${c}`, w: 1 });
+        }
+
+        for (const d of normalizeMultiValue(item?.decoration, splitDecorationParts)) {
+          tags.push({ key: "decoration", value: d, label: `裝飾：${d}`, w: 1.25 });
+        }
+        return tags;
+      }
+
+      function similarityScore(a, b) {
+        if (!a || !b) return 0;
+        let score = 0;
+        const stA = new Set(normalizeStyleAllowed(a.style, a.toe).map((x) => x.toLowerCase()));
+        const stB = new Set(normalizeStyleAllowed(b.style, b.toe).map((x) => x.toLowerCase()));
+        if (stA.size && stB.size) {
+          for (const x of stA) {
+            if (stB.has(x)) {
+              score += 3;
+              break;
+            }
+          }
+        }
+
+        const toeA = new Set(normalizeToeAllowed(a.toe, a.style).map((x) => x.toLowerCase()));
+        const toeB = new Set(normalizeToeAllowed(b.toe, b.style).map((x) => x.toLowerCase()));
+        if (toeA.size && toeB.size) {
+          for (const x of toeA) {
+            if (toeB.has(x)) {
+              score += 3;
+              break;
+            }
+          }
+        }
+        const hsA = new Set(normalizeHeelStylesAllowed(a.heelStyle).map((x) => x.toLowerCase()));
+        const hsB = new Set(normalizeHeelStylesAllowed(b.heelStyle).map((x) => x.toLowerCase()));
+        if (hsA.size && hsB.size) {
+          for (const x of hsA) {
+            if (hsB.has(x)) {
+              score += 2;
+              break;
+            }
+          }
+        }
+        if ((a.materialSimple ?? "") && a.materialSimple === b.materialSimple) score += 1;
+        const colA = new Set(normalizeColorsAllowed(a.color).map((x) => x.toLowerCase()));
+        const colB = new Set(normalizeColorsAllowed(b.color).map((x) => x.toLowerCase()));
+        if (colA.size && colB.size) {
+          for (const x of colA) {
+            if (colB.has(x)) {
+              score += 0.75;
+              break;
+            }
+          }
+        }
+
+        const decA = new Set(normalizeMultiValue(a.decoration, splitDecorationParts).map((x) => x.toLowerCase()));
+        const decB = new Set(normalizeMultiValue(b.decoration, splitDecorationParts).map((x) => x.toLowerCase()));
+        if (decA.size && decB.size) {
+          let inter = 0;
+          for (const x of decA) if (decB.has(x)) inter += 1;
+          score += inter * 1.25;
+        }
+        return score;
+      }
+
+      function getRelated(item, limit = 12) {
+        const scored = [];
+        for (const other of data) {
+          if (other === item) continue;
+          const s = similarityScore(item, other);
+          if (s <= 0) continue;
+          scored.push({ s, other });
+        }
+        scored.sort(
+          (x, y) =>
+            (y.s - x.s) ||
+            String(x.other.code || x.other.filename).localeCompare(String(y.other.code || y.other.filename))
+        );
+        return scored.slice(0, limit).map((x) => x.other);
+      }
+
+      function closeDrawer() {
+        drawerEl.style.display = "none";
+        drawerOverlayEl.style.display = "none";
+        drawerEl.setAttribute("aria-hidden", "true");
+      }
+
+      function openDrawer(item) {
+        if (!item) return;
+        drawerFilenameEl.textContent = item.code || item.filename || "—";
+
+        const variants = Array.isArray(item?.variants) ? item.variants : [];
+        let active = 0;
+        const setActive = (idx) => {
+          active = idx;
+          const v = variants[idx] || {};
+          const src = (v?.image ?? v?.thumb ?? item?.image ?? item?.thumb ?? "").toString();
+          drawerImgEl.src = src;
+          drawerImgEl.alt = (v?.filename ?? item?.code ?? "").toString();
+          drawerCopyValue = (v?.filename ?? item?.code ?? item?.filename ?? "").toString();
+
+          for (const btn of drawerThumbsEl.querySelectorAll("button[data-idx]")) {
+            btn.classList.toggle("active", Number(btn.getAttribute("data-idx")) === idx);
+          }
+        };
+
+        drawerThumbsEl.innerHTML = "";
+        if (variants.length > 1) {
+          for (let i = 0; i < variants.length; i++) {
+            const v = variants[i];
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "thumbBtn";
+            btn.setAttribute("data-idx", String(i));
+            const src = (v?.thumb ?? v?.image ?? "").toString();
+            btn.innerHTML = `<img alt="${escapeHtml(v.filename)}" src="${escapeHtml(src)}" loading="lazy" />`;
+            btn.addEventListener("click", (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setActive(i);
+            });
+            drawerThumbsEl.appendChild(btn);
+          }
+        }
+
+        setActive(0);
+
+        const decorationText = fmtMulti(item?.decoration);
+        const materialText = item?.materialSimple || item?.material || "—";
+        const colorText = fmtMulti(item?.color) || "—";
+        drawerTagsEl.innerHTML = [
+          tag(`款式：${item.style || "—"}`, true),
+          tag(`鞋頭：${item.toe || "—"}`, true),
+          tag(`鞋跟：${fmtMulti(item.heelStyle) || "—"}`, true),
+          decorationText ? tag(`裝飾：${decorationText}`, true) : "",
+          tag(`材質：${materialText}`, true),
+          tag(`顏色：${colorText}`, true),
+        ].join("");
+
+        const related = getRelated(item, 12);
+        drawerRelatedEl.innerHTML = "";
+        for (const r of related) {
+          const el = document.createElement("div");
+          el.className = "relCard";
+          const src = (r?.image ?? r?.thumb ?? "").toString();
+          const title = r?.code || r?.filename || "";
+          const count = Array.isArray(r?.variants) ? r.variants.length : Array.isArray(r?.filenames) ? r.filenames.length : 1;
+          el.innerHTML = `
+            <img src="${escapeHtml(src)}" alt="${escapeHtml(title)}" loading="lazy" />
+            <div class="relMeta">
+              <div class="relName">${escapeHtml(title)}${count > 1 ? ` <span class="badge">×${count}</span>` : ""}</div>
+              <div class="tags" style="gap: 6px">
+                ${r.style ? tag(r.style, true) : ""}
+                ${r.toe ? tag(r.toe, true) : ""}
+                ${r.heelStyle ? tag(r.heelStyle, true) : ""}
+              </div>
+            </div>
+          `;
+          el.addEventListener("click", () => openDrawer(r));
+          drawerRelatedEl.appendChild(el);
+        }
+
+        drawerEl.style.display = "block";
+        drawerOverlayEl.style.display = "block";
+        drawerEl.setAttribute("aria-hidden", "false");
+      }
+
+      function renderGrid(items) {
+        gridEl.innerHTML = "";
+        if (!items.length) {
+          emptyEl.style.display = "block";
+          return;
+        }
+        emptyEl.style.display = "none";
+
+        for (const item of items) {
+          const card = document.createElement("article");
+          card.className = "card";
+          const decorationText = fmtMulti(item?.decoration);
+          const materialText = item?.materialSimple || item?.material || "—";
+          const colorText = fmtMulti(item?.colorRaw || item?.color) || "—";
+          const title = item?.code || item?.filename || "";
+          const count = Array.isArray(item?.variants) ? item.variants.length : Array.isArray(item?.filenames) ? item.filenames.length : 1;
+          const variants = Array.isArray(item?.variants) && item.variants.length ? item.variants : [];
+          const fallbackSrc = (item?.image ?? item?.thumb ?? "").toString();
+          const imgs = (variants.length ? variants : [{ filename: item?.filename || title, image: fallbackSrc }]).map((v, i) => {
+            const src = (v?.image ?? v?.thumb ?? fallbackSrc ?? "").toString();
+            const alt = `${title}${count > 1 ? ` #${i + 1}` : ""}`;
+            return `<div class="thumbItem"><img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" loading="lazy" /></div>`;
+          });
+
+          card.innerHTML = `
+            <div class="thumbList">${imgs.join("")}</div>
+            <div class="meta">
+              <div class="filename">
+                <div>${escapeHtml(title)}${count > 1 ? ` <span class="badge">×${count}</span>` : ""}</div>
+                <a class="small" href="#" data-copy="1" title="複製代碼">copy</a>
+              </div>
+              <div class="tags">
+                ${tag(`款式：${fmtMulti(item.style) || "—"}`, true)}
+                ${tag(`鞋頭：${fmtMulti(item.toe) || "—"}`, true)}
+                ${tag(`鞋跟：${fmtMulti(item.heelStyle) || "—"}`, true)}
+                ${decorationText ? tag(`裝飾：${decorationText}`, true) : ""}
+                ${tag(`材質：${materialText}`, true)}
+                ${tag(`顏色：${colorText}`, true)}
+              </div>
+            </div>
+          `;
+
+          const copyLink = card.querySelector("a[data-copy]");
+          copyLink.addEventListener("click", async (e) => {
+            e.preventDefault();
+            try {
+              await navigator.clipboard.writeText(title);
+              copyLink.textContent = "copied";
+              setTimeout(() => (copyLink.textContent = "copy"), 800);
+            } catch {
+              copyLink.textContent = "failed";
+              setTimeout(() => (copyLink.textContent = "copy"), 800);
+            }
+          });
+
+          // Keep drawer accessible without forcing click-to-view variants
+          card.querySelector(".filename > div")?.addEventListener("click", () => openDrawer(item));
+
+          gridEl.appendChild(card);
+        }
+      }
+
+      function saveState() {
+        const payload = {
+          q: (qEl.value ?? "").toString(),
+          selected: Object.fromEntries(groups.map((g) => [g.key, Array.from(selected[g.key] || [])])),
+        };
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+        } catch {
+          // ignore
+        }
+      }
+
+      function loadState() {
+        isRestoringState = true;
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return;
+          const parsed = JSON.parse(raw);
+          qEl.value = (parsed?.q ?? "").toString();
+
+          for (const g of groups) selected[g.key].clear();
+          const sel = parsed?.selected ?? {};
+          for (const g of groups) {
+            const arr = Array.isArray(sel?.[g.key]) ? sel[g.key] : [];
+            for (const v of arr) selected[g.key].add((v ?? "").toString());
+          }
+
+          for (const g of groups) {
+            for (const v of selected[g.key]) {
+              const input = document.getElementById(checkboxId(g.key, v));
+              if (input) input.checked = true;
+            }
+          }
+        } catch {
+          // ignore
+        } finally {
+          isRestoringState = false;
+        }
+      }
+
+      // UI init: image size slider
+      (function initUi() {
+        const ui = readUi();
+        const start = Number(ui.gridColWidthPx);
+        setGridColWidth(Number.isFinite(start) ? start : 340);
+
+        const mode = (ui.gridMode ?? "auto").toString();
+        const cnt = Number(ui.gridColCount);
+        applyGridMode(mode === "fixed" ? "fixed" : "auto", Number.isFinite(cnt) ? cnt : 3);
+
+        if (sizeRangeEl) {
+          sizeRangeEl.addEventListener("input", () => {
+            const v = Number(sizeRangeEl.value);
+            setGridColWidth(v);
+            writeUi({ gridColWidthPx: Number(sizeRangeEl.value) });
+          });
+        }
+
+        if (colRangeEl) {
+          colRangeEl.addEventListener("input", () => {
+            const v = Number(colRangeEl.value);
+            const m = autoColsEl && autoColsEl.checked ? "auto" : "fixed";
+            applyGridMode(m, v);
+            writeUi({ gridColCount: Number(colRangeEl.value) });
+          });
+        }
+
+        if (autoColsEl) {
+          autoColsEl.addEventListener("change", () => {
+            const m = autoColsEl.checked ? "auto" : "fixed";
+            const v = Number(colRangeEl?.value ?? 3);
+            applyGridMode(m, v);
+            writeUi({ gridMode: m });
+          });
+        }
+
+        window.addEventListener("resize", () => {
+          if (!(autoColsEl && autoColsEl.checked)) {
+            const v = Number(colRangeEl?.value ?? 3);
+            const px = approxColWidthPx(v);
+            if (sizeValEl) sizeValEl.textContent = px ? `${px}` : "—";
+          }
+        });
+      })();
+
+      for (const g of groups) renderChecks(g);
+      loadState();
+
+      const presets = [
+        {
+          id: "pump_point",
+          title: "包鞋（尖頭）",
+          hint: "款式相似",
+          iconSrc: "assets/preset-icons/pump.svg",
+          filters: { style: ["包鞋"], toe: ["尖頭"] },
+        },
+        {
+          id: "pump_round",
+          title: "包鞋（圓頭）",
+          hint: "款式相似",
+          iconSrc: "assets/preset-icons/round.svg",
+          filters: { style: ["包鞋"], toe: ["圓頭"] },
+        },
+        {
+          id: "sandal",
+          title: "涼鞋",
+          hint: "款式相似",
+          iconSrc: "assets/preset-icons/sandal.svg",
+          filters: { style: ["涼鞋"] },
+        },
+        {
+          id: "boot",
+          title: "長靴",
+          hint: "款式相似",
+          iconSrc: "assets/preset-icons/boot.svg",
+          filters: { style: ["長靴"] },
+        },
+        {
+          id: "platform",
+          title: "厚底（防水台）",
+          hint: "裝飾相似",
+          iconSrc: "assets/preset-icons/platform.svg",
+          filters: { decoration: ["防水台"] },
+        },
+      ];
+
+      function renderPresets() {
+        presetsEl.innerHTML = "";
+        for (const p of presets) {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "presetBtn";
+          btn.setAttribute("data-preset", p.id);
+          btn.innerHTML = `
+            <div class="presetTop">
+              <div style="display: grid; gap: 4px">
+                <div class="presetTitle">${escapeHtml(p.title)}</div>
+                <div class="presetHint">${escapeHtml(p.hint)}</div>
+              </div>
+              <div class="presetIcon"><img alt="" src="${escapeHtml(p.iconSrc)}" /></div>
+            </div>
+          `;
+          btn.addEventListener("click", () => applyPreset(p));
+          presetsEl.appendChild(btn);
+        }
+      }
+
+      renderPresets();
+      inferActivePreset();
+
+      let qTimer = null;
+      qEl.addEventListener("input", () => {
+        if (qTimer) clearTimeout(qTimer);
+        qTimer = setTimeout(() => {
+          apply();
+          if (!isRestoringState) saveState();
+          inferActivePreset();
+        }, 80);
+      });
+      resetEl.addEventListener("click", () => {
+        qEl.value = "";
+        for (const g of groups) selected[g.key].clear();
+        for (const input of document.querySelectorAll('input[type="checkbox"]')) input.checked = false;
+        apply();
+        saveState();
+        setActivePreset("");
+      });
+
+      drawerCloseEl.addEventListener("click", closeDrawer);
+      drawerOverlayEl.addEventListener("click", closeDrawer);
+      drawerCopyEl.addEventListener("click", async (e) => {
+        e.preventDefault();
+        const name = (drawerCopyValue ?? "").toString().trim();
+        if (!name) return;
+        try {
+          await navigator.clipboard.writeText(name);
+          drawerCopyEl.textContent = "copied";
+          setTimeout(() => (drawerCopyEl.textContent = "copy"), 800);
+        } catch {
+          drawerCopyEl.textContent = "failed";
+          setTimeout(() => (drawerCopyEl.textContent = "copy"), 800);
+        }
+      });
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeDrawer();
+      });
+
+      apply();
+    </script>
+  </body>
+</html>
