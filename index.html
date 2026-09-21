@@ -610,11 +610,11 @@
       }
     </style>
   </head>
-  <body>
+  <body class="images-hidden">
     <header>
       <div class="wrap titlebar">
         <h1>鞋子資料 / 可篩選</h1>
-        <button class="btn" id="toggleImages" type="button" aria-pressed="false">隱藏圖片</button>
+        <button class="btn" id="toggleImages" type="button" aria-pressed="true">顯示圖片</button>
         <div class="count" id="count">—</div>
       </div>
     </header>
@@ -2378,11 +2378,10 @@
         toggleImagesEl.textContent = hidden ? "顯示圖片" : "隱藏圖片";
         toggleImagesEl.setAttribute("aria-pressed", String(hidden));
       }
-      setImagesHidden(readUi().imagesHidden === true);
+      setImagesHidden(true);
       toggleImagesEl.addEventListener("click", () => {
         const hidden = !document.body.classList.contains("images-hidden");
         setImagesHidden(hidden);
-        writeUi({ imagesHidden: hidden });
       });
 
       $("#shuffle").addEventListener("click", () => {
