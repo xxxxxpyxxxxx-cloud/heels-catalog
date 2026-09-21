@@ -285,6 +285,13 @@
         box-shadow: 0 2px 8px rgba(13, 13, 13, 0.12), 0 18px 44px rgba(13, 13, 13, 0.10);
       }
 
+      body.images-hidden .thumbList,
+      body.images-hidden .detailImg img,
+      body.images-hidden .thumbBtn img,
+      body.images-hidden .relCard img {
+        display: none;
+      }
+
       .thumbList {
         width: 100%;
         background: rgba(255, 255, 255, 0.72);
@@ -511,6 +518,13 @@
         display: block;
       }
 
+      .detailImg .drawerVideo {
+        width: 100%;
+        height: auto;
+        display: none;
+        background: #000;
+      }
+
       .thumbsRow {
         display: flex;
         gap: 8px;
@@ -538,6 +552,15 @@
         height: auto;
         display: block;
         border-radius: 12px;
+      }
+
+      .thumbBtn.videoBtn {
+        line-height: 1;
+        padding: 10px 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: rgba(13, 13, 13, 0.9);
       }
 
       .subTitle {
@@ -591,6 +614,7 @@
     <header>
       <div class="wrap titlebar">
         <h1>鞋子資料 / 可篩選</h1>
+        <button class="btn" id="toggleImages" type="button" aria-pressed="false">隱藏圖片</button>
         <div class="count" id="count">—</div>
       </div>
     </header>
@@ -605,6 +629,10 @@
               <button class="btn" id="reset">重設</button>
             </div>
             <input id="q" type="text" placeholder="例如：黑 / 細跟 / 露趾 / T字帶…" />
+          </div>
+
+          <div class="field">
+            <button class="btn" id="shuffle" type="button">隨機排列</button>
           </div>
 
           <div class="field">
@@ -651,6 +679,13 @@
             <div class="group">
               <div class="groupTitle">鞋跟樣式</div>
               <div class="checks" id="heelChecks"></div>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="group">
+              <div class="groupTitle">碼別</div>
+              <div class="checks" id="censorChecks"></div>
             </div>
           </div>
 
@@ -705,7 +740,10 @@
         <button class="btn" id="drawerClose" type="button">關閉</button>
       </div>
       <div class="drawerBody">
-        <div class="detailImg"><img id="drawerImg" alt="" loading="lazy" /></div>
+        <div class="detailImg">
+          <img id="drawerImg" alt="" loading="lazy" />
+          <video id="drawerVideo" class="drawerVideo" controls playsinline muted preload="metadata"></video>
+        </div>
         <div id="drawerThumbs" class="thumbsRow"></div>
         <div class="tags" id="drawerTags" style="margin-top: 12px"></div>
         <div class="subTitle">相似推薦</div>
@@ -719,20 +757,50 @@
     <script src="./data_imported_ptt.js"></script>
     <script src="./csv_tags_ptt.js"></script>
     <script src="./csv_tags.js"></script>
+    <script src="./video_index.js"></script>
     <script>
       const baseData = Array.isArray(window.SHOE_DATA) ? window.SHOE_DATA : [];
-      const importedData = Array.isArray(window.SHOE_DATA_IMPORTED) ? window.SHOE_DATA_IMPORTED : [];
-      const importedDataPtt = Array.isArray(window.SHOE_DATA_IMPORTED_PTT) ? window.SHOE_DATA_IMPORTED_PTT : [];
+      const importedData = (Array.isArray(window.SHOE_DATA_IMPORTED) ? window.SHOE_DATA_IMPORTED : []).map((it) => ({
+        ...(it || {}),
+        sourceCsv: "hh av - 有碼.csv",
+      }));
+      const importedDataPtt = (Array.isArray(window.SHOE_DATA_IMPORTED_PTT) ? window.SHOE_DATA_IMPORTED_PTT : []).map((it) => ({
+        ...(it || {}),
+        sourceCsv: "hh av ptt - 無碼.csv",
+      }));
 
       function dedupeByFilename(items) {
         const out = [];
-        const seen = new Set();
+        const idx = new Map();
         for (const it of items) {
           const fn = (it?.filename ?? "").toString().trim().toLowerCase();
           if (!fn) continue;
-          if (seen.has(fn)) continue;
-          seen.add(fn);
-          out.push(it);
+          const at = idx.get(fn);
+          if (at === undefined) {
+            idx.set(fn, out.length);
+            out.push(it);
+            continue;
+          }
+
+          // Merge only a small set of metadata across duplicates (keep earlier tag fields).
+          const cur = out[at] || {};
+          const merged = { ...cur };
+          if (it?.sourceCsv) {
+            const a = Array.isArray(cur?.sourceCsv) ? cur.sourceCsv : cur?.sourceCsv ? [cur.sourceCsv] : [];
+            const b = Array.isArray(it.sourceCsv) ? it.sourceCsv : [it.sourceCsv];
+            const list = [];
+            const seen = new Set();
+            for (const x of a.concat(b)) {
+              const v = (x ?? "").toString().trim();
+              if (!v) continue;
+              const k = v.toLowerCase();
+              if (seen.has(k)) continue;
+              seen.add(k);
+              list.push(v);
+            }
+            merged.sourceCsv = list.length === 0 ? undefined : list.length === 1 ? list[0] : list;
+          }
+          out[at] = merged;
         }
         return out;
       }
@@ -794,24 +862,43 @@
         return out;
       }
 
+      function censorFromSourceCsv(sourceCsv) {
+        const srcs = toArray(sourceCsv);
+        let hasCoded = false;
+        let hasUncensored = false;
+        for (const s of srcs) {
+          if (s.includes("無碼")) hasUncensored = true;
+          if (s.includes("有碼") || s.includes("未處理")) hasCoded = true;
+        }
+        const out = [];
+        if (hasCoded) out.push("有碼");
+        if (hasUncensored) out.push("無碼");
+        return out.length === 0 ? "" : out.length === 1 ? out[0] : out;
+      }
+
       function mergeCsvTags(item) {
         const code = codeFromFilename(item?.filename);
         if (!code) return item;
         const t = csvTagsByCode[code];
-        if (!t) return item;
 
-        const next = { ...item };
-        // CSV is the source of truth for tags; apply whenever present.
-        if (t.style) next.style = t.style;
-        if (t.toe) next.toe = t.toe;
-        if (t.heelStyle) next.heelStyle = t.heelStyle;
-        if (t.materialSimple) next.materialSimple = t.materialSimple;
-        if (t.color) {
-          next.colorRaw = t.color;
-          next.color = t.color; // keep CSV color rules as-is
+        const next = { ...(item || {}) };
+        if (t) {
+          // CSV is the source of truth for tags; apply whenever present.
+          if (t.style) next.style = t.style;
+          if (t.toe) next.toe = t.toe;
+          if (t.heelStyle) next.heelStyle = t.heelStyle;
+          if (t.materialSimple) next.materialSimple = t.materialSimple;
+          if (t.color) {
+            next.colorRaw = t.color;
+            next.color = t.color; // keep CSV color rules as-is
+          }
+          if (t.decoration) next.decoration = t.decoration;
+          if (t.rare) next.rare = t.rare;
         }
-        if (t.decoration) next.decoration = t.decoration;
-        if (t.rare) next.rare = t.rare;
+
+        // Censor category: prefer explicit CSV origin; fallback to membership; default to 有碼.
+        const fromSource = censorFromSourceCsv(next.sourceCsv);
+        next.censor = fromSource || (tagsPtt?.[code] ? "無碼" : tagsCoded?.[code] ? "有碼" : "有碼");
         return next;
       }
 
@@ -1158,6 +1245,7 @@
               style: [],
               toe: [],
               heelStyle: [],
+              censor: [],
               heelHeight: "",
               materialSimple: "",
               color: [],
@@ -1181,6 +1269,7 @@
           if (it.toe) g.toe = mergeArrayToArray(g.toe, it.toe);
           const heelStyles = normalizeHeelStylesAllowed(it.heelStyle);
           if (heelStyles.length) g.heelStyle = mergeArrayToArray(g.heelStyle, heelStyles);
+          if (it.censor) g.censor = mergeArrayToArray(g.censor, it.censor);
           if (!g.heelHeight && it.heelHeight) g.heelHeight = it.heelHeight;
           if (!g.materialSimple && it.materialSimple) g.materialSimple = it.materialSimple;
           if (!g.rare && it.rare) g.rare = (it.rare === true ? "少見款式" : it.rare);
@@ -1208,6 +1297,7 @@
             const hs = normalizeHeelStylesAllowed(g.heelStyle);
             g.heelStyle = hs.length === 1 ? hs[0] : hs;
           }
+          if (Array.isArray(g.censor)) g.censor = g.censor.length === 1 ? g.censor[0] : g.censor;
           if (!Array.isArray(g.decoration)) g.decoration = normalizeDecorationsAllowed(g.decoration);
           if (Array.isArray(g.style)) {
             const s = normalizeStyleAllowed(g.style, g.toe);
@@ -1223,6 +1313,7 @@
       }
 
       const data = groupByCode(ungrouped);
+      let displayOrder = data.slice();
       const gridEl = $("#grid");
       const presetsEl = $("#presets");
       const emptyEl = $("#empty");
@@ -1240,6 +1331,7 @@
       const drawerCopyEl = $("#drawerCopy");
       const drawerCloseEl = $("#drawerClose");
       const drawerImgEl = $("#drawerImg");
+      const drawerVideoEl = $("#drawerVideo");
       const drawerThumbsEl = $("#drawerThumbs");
       const drawerTagsEl = $("#drawerTags");
       const drawerRelatedEl = $("#drawerRelated");
@@ -1253,6 +1345,7 @@
         { key: "style", title: "款式", mount: $("#styleChecks") },
         { key: "toe", title: "鞋頭", mount: $("#toeChecks") },
         { key: "heelStyle", title: "鞋跟樣式", mount: $("#heelChecks") },
+        { key: "censor", title: "碼別", mount: $("#censorChecks") },
         { key: "rare", title: "少見款式", mount: $("#rareChecks") },
         { key: "decoration", title: "裝飾", mount: $("#decChecks") },
         { key: "materialSimple", title: "材質", mount: $("#matChecks") },
@@ -1453,6 +1546,7 @@
         const style = fmtMulti(item?.style);
         const toe = fmtMulti(item?.toe);
         const heel = fmtMulti(item?.heelStyle);
+        const censor = fmtMulti(item?.censor);
         const names = Array.isArray(item?.filenames) ? item.filenames.join(" ") : item?.filename;
         const hay = [
           item?.code,
@@ -1460,6 +1554,7 @@
           style,
           toe,
           heel,
+          censor,
           item?.rare,
           dec,
           item?.material,
@@ -1478,6 +1573,7 @@
           inSelectedSet("style", item?.style) &&
           inSelectedSet("toe", item?.toe) &&
           inSelectedSet("heelStyle", item?.heelStyle) &&
+          inSelectedSet("censor", item?.censor) &&
           inSelectedSet("rare", item?.rare) &&
           inSelectedSet("decoration", item?.decoration) &&
           inSelectedSet("materialSimple", item?.materialSimple) &&
@@ -1531,7 +1627,7 @@
 
       function apply() {
         const q = (qEl.value ?? "").trim();
-        const filtered = data.filter((item) => matchesFilters(item, q));
+        const filtered = displayOrder.filter((item) => matchesFilters(item, q));
         renderGrid(filtered);
         countEl.textContent = `${filtered.length} / ${data.length}`;
         updateFacetUi(filtered);
@@ -1617,6 +1713,9 @@
         }
         for (const h of normalizeHeelStylesAllowed(item?.heelStyle)) {
           tags.push({ key: "heelStyle", value: h, label: `鞋跟：${h}`, w: 2 });
+        }
+        for (const cs of toArray(item?.censor)) {
+          tags.push({ key: "censor", value: cs, label: `碼別：${cs}`, w: 1.25 });
         }
         if (item?.rare) tags.push({ key: "rare", value: item.rare, label: `${item.rare}`, w: 1.5 });
         if (item?.materialSimple)
@@ -1704,12 +1803,237 @@
       }
 
       function closeDrawer() {
+        try {
+          drawerMediaReqId++;
+          if (drawerVideoEl) {
+            drawerVideoEl.pause();
+            drawerVideoEl.removeAttribute("src");
+            drawerVideoEl.load();
+            drawerVideoEl.style.display = "none";
+          }
+          if (drawerImgEl) drawerImgEl.style.display = "";
+        } catch {
+          // ignore
+        }
         drawerEl.style.display = "none";
         drawerOverlayEl.style.display = "none";
         drawerEl.setAttribute("aria-hidden", "true");
       }
 
-      function openDrawer(item) {
+      function toStrArray(v) {
+        if (!v) return [];
+        if (Array.isArray(v)) return v.map((x) => (x ?? "").toString().trim()).filter(Boolean);
+        const s = (v ?? "").toString().trim();
+        return s ? [s] : [];
+      }
+
+      function isUncensoredItem(item) {
+        return toStrArray(item?.censor).some((x) => x === "無碼");
+      }
+
+      function getVideoIndex() {
+        const vi = window.VIDEO_INDEX;
+        if (!vi || typeof vi !== "object") return null;
+        const byKey = vi.byKey && typeof vi.byKey === "object" ? vi.byKey : null;
+        const root = (vi.root ?? "").toString();
+        return byKey ? { byKey, root } : null;
+      }
+
+      function videoRelForItem(item) {
+        const vi = getVideoIndex();
+        if (!vi) return "";
+
+        const keys = [];
+        const code = (item?.code ?? "").toString().trim();
+        if (code) keys.push(code);
+
+        const variants = Array.isArray(item?.variants) ? item.variants : [];
+        for (const v of variants) {
+          const fn = (v?.filename ?? "").toString().trim();
+          if (!fn) continue;
+          const noExt = fn.replace(/\.[^.]+$/, "");
+          const base = noExt.split(".")[0];
+          if (base) keys.push(base);
+        }
+
+        // Try exact key then common uppercased key
+        for (const k of keys) {
+          const kk = (k ?? "").toString().trim().toUpperCase();
+          if (!kk) continue;
+          const val = vi.byKey[kk];
+          if (typeof val === "string" && val) return val;
+          if (Array.isArray(val) && val.length) return (val[0] ?? "").toString();
+        }
+        return "";
+      }
+
+      function fileUrlFromRootRel(rootWinPath, rel) {
+        const root = (rootWinPath ?? "").toString().trim();
+        const r = (rel ?? "").toString().trim().replaceAll("\\", "/");
+        if (!root || !r) return "";
+        // root like D:\Japan\Heels
+        const rootSlashes = root.replaceAll("\\", "/").replace(/\/+$/g, "");
+        const full = `${rootSlashes}/${r}`.replaceAll("\\", "/");
+        // file:///D:/Japan/Heels/涼鞋/022417_003-caribpr-1080p.mp4
+        const withDrive = full.replace(/^([A-Za-z]):\//, (_, d) => `${d}:/`);
+        const segs = withDrive.split("/").filter((x) => x !== "");
+        const enc = segs
+          .map((seg, i) => {
+            if (i === 0 && /^[A-Za-z]:$/.test(seg)) return seg; // keep drive colon
+            return encodeURIComponent(seg);
+          })
+          .join("/");
+        return `file:///${enc}`;
+      }
+
+      function mediaUrlFromRel(rel) {
+        const r = (rel ?? "").toString().trim().replaceAll("\\", "/").replace(/^\/+/g, "");
+        if (!r) return "";
+        return `./media/${encodePathSegments(r)}`;
+      }
+
+      function openVideoPlayerForItem(item) {
+        const rel = videoRelForItem(item);
+        if (!rel) return false;
+        const vi = getVideoIndex();
+        const src =
+          location && location.protocol && location.protocol.startsWith("http")
+            ? mediaUrlFromRel(rel)
+            : fileUrlFromRootRel(vi?.root || "D:\\Japan\\Heels", rel);
+        if (!src) return false;
+        const title = (item?.code ?? item?.filename ?? "").toString();
+        const url = `player.html?src=${encodeURIComponent(src)}&title=${encodeURIComponent(title)}`;
+        window.open(url, "_blank", "noopener");
+        return true;
+      }
+
+      function encodePathSegments(path) {
+        const p = (path ?? "").toString().replaceAll("\\", "/");
+        return p
+          .split("/")
+          .map((seg) => encodeURIComponent(seg))
+          .join("/");
+      }
+
+      async function fetchMediaSearch(q) {
+        const query = (q ?? "").toString().trim();
+        if (!query) return [];
+        // Only works when served from tools/serve.ps1 (http://localhost:8787).
+        if (!location || !location.protocol || !location.protocol.startsWith("http")) return [];
+        try {
+          const res = await fetch(`./media/search?q=${encodeURIComponent(query)}`, { cache: "no-store" });
+          if (!res.ok) return [];
+          const json = await res.json();
+          const items = Array.isArray(json?.items) ? json.items : [];
+          return items
+            .map((it) => it?.Rel || it?.rel || "")
+            .filter(Boolean)
+            .map((rel) => `media/${encodePathSegments(rel)}`);
+        } catch {
+          return [];
+        }
+      }
+
+      async function videoCandidatesFor(item, variants) {
+        const out = [];
+        const seen = new Set();
+        const add = (p) => {
+          const s = (p ?? "").toString().trim();
+          if (!s) return;
+          const k = s.toLowerCase();
+          if (seen.has(k)) return;
+          seen.add(k);
+          out.push(s);
+        };
+
+        const code = (item?.code ?? "").toString().trim();
+        const bases = [];
+        if (code) bases.push(code);
+        for (const v of Array.isArray(variants) ? variants : []) {
+          const fn = (v?.filename ?? "").toString().trim();
+          if (!fn) continue;
+          const base = fn.replace(/\.[^.]+$/, "");
+          if (base) bases.push(base);
+        }
+
+        // 1) Try media index (D:\Japan\Heels) via local server search.
+        for (const b of bases) {
+          const hits = await fetchMediaSearch(b);
+          for (const h of hits) add(h);
+        }
+
+        // 2) Fallback: direct local folders under the site.
+        const exts = ["mp4", "webm", "m4v", "mov"];
+        for (const b of bases) for (const ext of exts) add(`videos/${b}.${ext}`);
+        for (const b of bases) for (const ext of exts) add(`originals/${b}.${ext}`);
+
+        return out.map((p) => encodeURI(p));
+      }
+
+      function showDrawerImage() {
+        if (drawerVideoEl) drawerVideoEl.style.display = "none";
+        if (drawerImgEl) drawerImgEl.style.display = "";
+      }
+
+      function showDrawerVideo() {
+        if (drawerImgEl) drawerImgEl.style.display = "none";
+        if (drawerVideoEl) drawerVideoEl.style.display = "block";
+      }
+
+      function stopDrawerVideo() {
+        try {
+          if (!drawerVideoEl) return;
+          drawerVideoEl.pause();
+          drawerVideoEl.removeAttribute("src");
+          drawerVideoEl.load();
+        } catch {
+          // ignore
+        }
+      }
+
+      let drawerMediaReqId = 0;
+
+      function tryPlayVideoCandidates(candidates, idx = 0) {
+        if (!drawerVideoEl) return;
+        const list = Array.isArray(candidates) ? candidates : [];
+        if (!list.length || idx >= list.length) {
+          stopDrawerVideo();
+          showDrawerImage();
+          return;
+        }
+
+        const src = list[idx];
+        const onOk = () => {
+          drawerVideoEl.removeEventListener("error", onErr);
+          showDrawerVideo();
+          try {
+            drawerVideoEl.muted = true;
+            drawerVideoEl.volume = 0;
+            drawerVideoEl.play()?.catch?.(() => {});
+          } catch {
+            // ignore
+          }
+        };
+        const onErr = () => {
+          drawerVideoEl.removeEventListener("loadeddata", onOk);
+          tryPlayVideoCandidates(list, idx + 1);
+        };
+
+        stopDrawerVideo();
+        showDrawerVideo();
+        try {
+          drawerVideoEl.muted = true;
+          drawerVideoEl.volume = 0;
+          drawerVideoEl.src = src;
+          drawerVideoEl.addEventListener("loadeddata", onOk, { once: true });
+          drawerVideoEl.addEventListener("error", onErr, { once: true });
+          drawerVideoEl.load();
+        } catch {
+          tryPlayVideoCandidates(list, idx + 1);
+        }
+      }
+
+      function openDrawer(item, startIdx = 0) {
         if (!item) return;
         drawerFilenameEl.textContent = item.code || item.filename || "—";
 
@@ -1722,13 +2046,35 @@
           drawerImgEl.src = src;
           drawerImgEl.alt = (v?.filename ?? item?.code ?? "").toString();
           drawerCopyValue = (v?.filename ?? item?.code ?? item?.filename ?? "").toString();
+          stopDrawerVideo();
+          showDrawerImage();
 
           for (const btn of drawerThumbsEl.querySelectorAll("button[data-idx]")) {
             btn.classList.toggle("active", Number(btn.getAttribute("data-idx")) === idx);
           }
+          for (const btn of drawerThumbsEl.querySelectorAll("button[data-kind]")) {
+            btn.classList.toggle("active", btn.getAttribute("data-kind") === "image" && Number(btn.getAttribute("data-idx")) === idx);
+          }
         };
 
         drawerThumbsEl.innerHTML = "";
+
+        const uncensored = isUncensoredItem(item);
+        if (uncensored) {
+          const vbtn = document.createElement("button");
+          vbtn.type = "button";
+          vbtn.className = "thumbBtn videoBtn";
+          vbtn.setAttribute("data-kind", "video");
+          vbtn.title = "開啟對應影片（新分頁）";
+          vbtn.innerHTML = `<span style="font-weight: 700">▶</span><span style="font-size: 12px; opacity: .85">影片</span>`;
+          vbtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            openVideoPlayerForItem(item);
+          });
+          drawerThumbsEl.appendChild(vbtn);
+        }
+
         if (variants.length > 1) {
           for (let i = 0; i < variants.length; i++) {
             const v = variants[i];
@@ -1736,18 +2082,22 @@
             btn.type = "button";
             btn.className = "thumbBtn";
             btn.setAttribute("data-idx", String(i));
+            btn.setAttribute("data-kind", "image");
             const src = (v?.thumb ?? v?.image ?? "").toString();
             btn.innerHTML = `<img alt="${escapeHtml(v.filename)}" src="${escapeHtml(src)}" loading="lazy" />`;
             btn.addEventListener("click", (e) => {
               e.preventDefault();
               e.stopPropagation();
+              for (const b of drawerThumbsEl.querySelectorAll("button[data-kind]")) b.classList.remove("active");
+              btn.classList.add("active");
               setActive(i);
             });
             drawerThumbsEl.appendChild(btn);
           }
         }
 
-        setActive(0);
+        const safeStart = Number.isFinite(Number(startIdx)) ? Math.max(0, Math.min(variants.length - 1, Number(startIdx))) : 0;
+        setActive(variants.length ? safeStart : 0);
 
         const decorationText = fmtMulti(item?.decoration);
         const materialText = item?.materialSimple || item?.material || "—";
@@ -1756,6 +2106,7 @@
           tag(`款式：${item.style || "—"}`, true),
           tag(`鞋頭：${item.toe || "—"}`, true),
           tag(`鞋跟：${fmtMulti(item.heelStyle) || "—"}`, true),
+          item?.censor ? tag(`碼別：${fmtMulti(item.censor)}`, true) : "",
           decorationText ? tag(`裝飾：${decorationText}`, true) : "",
           tag(`材質：${materialText}`, true),
           tag(`顏色：${colorText}`, true),
@@ -1810,7 +2161,7 @@
           const imgs = (variants.length ? variants : [{ filename: item?.filename || title, image: fallbackSrc }]).map((v, i) => {
             const src = (v?.image ?? v?.thumb ?? fallbackSrc ?? "").toString();
             const alt = `${title}${count > 1 ? ` #${i + 1}` : ""}`;
-            return `<div class="thumbItem"><img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" loading="lazy" /></div>`;
+            return `<div class="thumbItem" data-idx="${i}"><img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" loading="lazy" /></div>`;
           });
 
           card.innerHTML = `
@@ -1844,8 +2195,19 @@
             }
           });
 
+          // Click image(s) to open drawer; open at the clicked variant index.
+          for (const el of card.querySelectorAll(".thumbItem[data-idx]")) {
+            el.addEventListener("click", (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              const idx = Number(el.getAttribute("data-idx") || "0") || 0;
+              if (isUncensoredItem(item) && openVideoPlayerForItem(item)) return;
+              openDrawer(item, idx);
+            });
+          }
+
           // Keep drawer accessible without forcing click-to-view variants
-          card.querySelector(".filename > div")?.addEventListener("click", () => openDrawer(item));
+          card.querySelector(".filename > div")?.addEventListener("click", () => openDrawer(item, 0));
 
           gridEl.appendChild(card);
         }
@@ -2010,7 +2372,29 @@
           inferActivePreset();
         }, 80);
       });
+      const toggleImagesEl = $("#toggleImages");
+      function setImagesHidden(hidden) {
+        document.body.classList.toggle("images-hidden", hidden);
+        toggleImagesEl.textContent = hidden ? "顯示圖片" : "隱藏圖片";
+        toggleImagesEl.setAttribute("aria-pressed", String(hidden));
+      }
+      setImagesHidden(readUi().imagesHidden === true);
+      toggleImagesEl.addEventListener("click", () => {
+        const hidden = !document.body.classList.contains("images-hidden");
+        setImagesHidden(hidden);
+        writeUi({ imagesHidden: hidden });
+      });
+
+      $("#shuffle").addEventListener("click", () => {
+        for (let index = displayOrder.length - 1; index > 0; index--) {
+          const swapIndex = Math.floor(Math.random() * (index + 1));
+          [displayOrder[index], displayOrder[swapIndex]] = [displayOrder[swapIndex], displayOrder[index]];
+        }
+        apply();
+      });
+
       resetEl.addEventListener("click", () => {
+        displayOrder = data.slice();
         qEl.value = "";
         for (const g of groups) selected[g.key].clear();
         for (const input of document.querySelectorAll('input[type="checkbox"]')) input.checked = false;
