@@ -613,7 +613,7 @@
         .missingImage { padding: 24px; text-align: center; color: #777; background: #f3f3f3; }
       </style>
   </head>
-  <body class="images-hidden">
+  <body>
     <header>
       <div class="wrap titlebar">
         <h1>鞋子資料 / 可篩選</h1>
@@ -720,7 +720,7 @@
           </div>
 
           <div class="field">
-            <button class="btn" id="toggleImages" type="button" aria-pressed="true">顯示圖片</button>
+            <button class="btn" id="toggleImages" type="button" aria-pressed="false">隱藏圖片</button>
           </div>
 
           <div style="color: rgba(13, 13, 13, 0.55); font-size: 12px; line-height: 1.4">
@@ -768,6 +768,7 @@
     <script src="./csv_tags.js"></script>
     <script src="./sheet_categories.js"></script>
     <script src="./cropped_images.js"></script>
+    <script src="./image_sizes.js"></script>
     <script>
       const baseData = Array.isArray(window.SHOE_DATA) ? window.SHOE_DATA : [];
       const importedData = (Array.isArray(window.SHOE_DATA_IMPORTED) ? window.SHOE_DATA_IMPORTED : []).map((it) => ({
@@ -1255,6 +1256,19 @@
         const suf = parts[parts.length - 1];
         if (/^\d+$/.test(suf)) return Number(suf);
         return 9999;
+      }
+
+      function imageDimensions(src) {
+        const filename = decodeURIComponent((src || "").split("/").pop());
+        const dimensions = window.IMAGE_SIZES?.[filename];
+        return Array.isArray(dimensions) && dimensions.length === 2 && dimensions.every((value) => Number.isInteger(value) && value > 0)
+          ? dimensions
+          : null;
+      }
+
+      function imageSizeAttributes(src) {
+        const dimensions = imageDimensions(src);
+        return dimensions ? `width="${dimensions[0]}" height="${dimensions[1]}"` : "";
       }
 
       function groupByCode(items) {
@@ -2083,6 +2097,14 @@
           active = idx;
           const v = variants[idx] || {};
           const src = (v?.image ?? v?.thumb ?? item?.image ?? item?.thumb ?? "").toString();
+          const dimensions = imageDimensions(src);
+          if (dimensions) {
+            drawerImgEl.width = dimensions[0];
+            drawerImgEl.height = dimensions[1];
+          } else {
+            drawerImgEl.removeAttribute("width");
+            drawerImgEl.removeAttribute("height");
+          }
           if (src) drawerImgEl.src = src;
           else drawerImgEl.removeAttribute("src");
           drawerImgEl.alt = (v?.filename ?? item?.code ?? "").toString();
@@ -2128,7 +2150,7 @@
             btn.setAttribute("data-idx", String(i));
             btn.setAttribute("data-kind", "image");
             const src = (v?.thumb ?? v?.image ?? "").toString();
-            btn.innerHTML = `<img alt="${escapeHtml(v.filename)}" src="${escapeHtml(src)}" loading="lazy" />`;
+            btn.innerHTML = `<img alt="${escapeHtml(v.filename)}" src="${escapeHtml(src)}" ${imageSizeAttributes(src)} loading="lazy" decoding="async" />`;
             btn.addEventListener("click", (e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -2165,7 +2187,7 @@
           const title = r?.code || r?.filename || "";
           const count = Array.isArray(r?.variants) ? r.variants.length : Array.isArray(r?.filenames) ? r.filenames.length : 1;
           el.innerHTML = `
-            ${src ? `<img src="${escapeHtml(src)}" alt="${escapeHtml(title)}" loading="lazy" />` : '<div class="missingImage">尚無圖片</div>'}
+            ${src ? `<img src="${escapeHtml(src)}" alt="${escapeHtml(title)}" ${imageSizeAttributes(src)} loading="lazy" decoding="async" />` : '<div class="missingImage">尚無圖片</div>'}
             <div class="relMeta">
               <div class="relName">${escapeHtml(title)}${count > 1 ? ` <span class="badge">×${count}</span>` : ""}</div>
               <div class="tags" style="gap: 6px">
@@ -2205,7 +2227,7 @@
           const imgs = (variants.length ? variants : fallbackSrc ? [{ filename: item?.filename || title, image: fallbackSrc }] : []).map((v, i) => {
             const src = (v?.image ?? v?.thumb ?? fallbackSrc ?? "").toString();
             const alt = `${title}${count > 1 ? ` #${i + 1}` : ""}`;
-            return `<div class="thumbItem" data-idx="${i}"><img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" loading="lazy" /></div>`;
+            return `<div class="thumbItem" data-idx="${i}"><img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" ${imageSizeAttributes(src)} loading="lazy" decoding="async" /></div>`;
           });
 
           card.innerHTML = `
@@ -2422,7 +2444,7 @@
         toggleImagesEl.textContent = hidden ? "顯示圖片" : "隱藏圖片";
         toggleImagesEl.setAttribute("aria-pressed", String(hidden));
       }
-      setImagesHidden(true);
+      setImagesHidden(false);
       toggleImagesEl.addEventListener("click", () => {
         const hidden = !document.body.classList.contains("images-hidden");
         setImagesHidden(hidden);
