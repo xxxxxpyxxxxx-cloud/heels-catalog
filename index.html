@@ -613,7 +613,7 @@
         .missingImage { padding: 24px; text-align: center; color: #777; background: #f3f3f3; }
       </style>
   </head>
-  <body>
+  <body class="images-hidden">
     <header>
       <div class="wrap titlebar">
         <h1>鞋子資料 / 可篩選</h1>
@@ -720,7 +720,7 @@
           </div>
 
           <div class="field">
-            <button class="btn" id="toggleImages" type="button" aria-pressed="false">隱藏圖片</button>
+            <button class="btn" id="toggleImages" type="button" aria-pressed="true">顯示圖片</button>
           </div>
 
           <div style="color: rgba(13, 13, 13, 0.55); font-size: 12px; line-height: 1.4">
@@ -2444,7 +2444,7 @@
         toggleImagesEl.textContent = hidden ? "顯示圖片" : "隱藏圖片";
         toggleImagesEl.setAttribute("aria-pressed", String(hidden));
       }
-      setImagesHidden(false);
+      setImagesHidden(true);
       toggleImagesEl.addEventListener("click", () => {
         const hidden = !document.body.classList.contains("images-hidden");
         setImagesHidden(hidden);
