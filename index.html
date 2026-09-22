@@ -609,6 +609,9 @@
         white-space: nowrap;
       }
     </style>
+      <style>
+        .missingImage { padding: 24px; text-align: center; color: #777; background: #f3f3f3; }
+      </style>
   </head>
   <body class="images-hidden">
     <header>
@@ -745,6 +748,7 @@
       <div class="drawerBody">
         <div class="detailImg">
           <img id="drawerImg" alt="" loading="lazy" />
+          <div id="drawerMissingImage" class="missingImage" hidden>尚無圖片</div>
           <video id="drawerVideo" class="drawerVideo" controls playsinline muted preload="metadata"></video>
         </div>
         <div id="drawerThumbs" class="thumbsRow"></div>
@@ -757,10 +761,13 @@
     <script src="./data.js"></script>
     <script src="./data_unprocessed_manual.js"></script>
     <script src="./data_imported_csv.js"></script>
+    <script src="./data_sheet_images.js"></script>
+    <script src="./data_sheet_uncensored.js"></script>
     <script src="./data_imported_ptt.js"></script>
     <script src="./csv_tags_ptt.js"></script>
     <script src="./csv_tags.js"></script>
-    <script src="./video_index.js"></script>
+    <script src="./sheet_categories.js"></script>
+    <script src="./cropped_images.js"></script>
     <script>
       const baseData = Array.isArray(window.SHOE_DATA) ? window.SHOE_DATA : [];
       const importedData = (Array.isArray(window.SHOE_DATA_IMPORTED) ? window.SHOE_DATA_IMPORTED : []).map((it) => ({
@@ -808,7 +815,8 @@
         return out;
       }
 
-      const rawData = dedupeByFilename(baseData.concat(importedData, importedDataPtt));
+      const sheetUncensored = Array.isArray(window.SHOE_DATA_SHEET_UNCENSORED) ? window.SHOE_DATA_SHEET_UNCENSORED : [];
+      const rawData = dedupeByFilename(baseData.concat(importedData, importedDataPtt, sheetUncensored));
       const tagsPtt =
         window.CSV_TAGS_PTT && window.CSV_TAGS_PTT.tagsByCode && typeof window.CSV_TAGS_PTT.tagsByCode === "object"
           ? window.CSV_TAGS_PTT.tagsByCode
@@ -817,6 +825,16 @@
         window.CSV_TAGS && window.CSV_TAGS.tagsByCode && typeof window.CSV_TAGS.tagsByCode === "object" ? window.CSV_TAGS.tagsByCode : {};
       // Priority: coded CSV overrides ptt CSV for same code
       const csvTagsByCode = { ...tagsPtt, ...tagsCoded };
+      const sheetCategoriesByCode = new Map();
+      for (const [category, sheet] of Object.entries(window.SHEET_CATEGORIES?.sheets || {})) {
+        for (const value of sheet.codes || []) {
+          const code = String(value).trim().toUpperCase();
+          if (!code) continue;
+          const categories = sheetCategoriesByCode.get(code) || [];
+          if (!categories.includes(category)) categories.push(category);
+          sheetCategoriesByCode.set(code, categories);
+        }
+      }
 
       function codeFromFilename(filename) {
         const fn = (filename ?? "").toString().trim();
@@ -880,7 +898,7 @@
       }
 
       function mergeCsvTags(item) {
-        const code = codeFromFilename(item?.filename);
+        const code = item?.code || codeFromFilename(item?.filename);
         if (!code) return item;
         const t = csvTagsByCode[code];
 
@@ -901,7 +919,10 @@
 
         // Censor category: prefer explicit CSV origin; fallback to membership; default to 有碼.
         const fromSource = censorFromSourceCsv(next.sourceCsv);
-        next.censor = fromSource || (tagsPtt?.[code] ? "無碼" : tagsCoded?.[code] ? "有碼" : "有碼");
+        const sheetCategories = sheetCategoriesByCode.get(code);
+        next.censor = sheetCategories?.length
+          ? sheetCategories.length === 1 ? sheetCategories[0] : sheetCategories
+          : fromSource || (tagsPtt?.[code] ? "無碼" : tagsCoded?.[code] ? "有碼" : "有碼");
         return next;
       }
 
@@ -1210,7 +1231,11 @@
         return "";
       }
 
-      const mergedRawData = rawData.map(mergeCsvTags).map(normalizeLooseTags);
+      const imageCodes = new Set(rawData.map((item) => codeFromFilename(item.filename)));
+      const csvOnlyItems = Object.keys(tagsCoded)
+        .filter((code) => !imageCodes.has(code))
+        .map((code) => ({ id: code, code, sourceCsv: "hh av - 有碼.csv" }));
+      const mergedRawData = rawData.concat(csvOnlyItems).map(mergeCsvTags).map(normalizeLooseTags);
       const ungrouped = mergedRawData.map((item) => {
         const heelHeight = (item?.heelHeight ?? "").toString().trim() || deriveHeelHeight(item?.heelHeightCm);
         const materialSimple = (item?.materialSimple ?? "").toString().trim() || deriveMaterialSimple(item?.material);
@@ -1260,13 +1285,15 @@
           }
 
           const img = (it?.image ?? it?.thumb ?? "").toString();
-          g.filenames.push(it.filename);
-          g.variants.push({
+          if (img) {
+            g.filenames.push(it.filename);
+            g.variants.push({
             filename: it.filename,
             image: img,
             thumb: (it?.thumb ?? img).toString(),
             objectPosition: (it?.objectPosition ?? "50% 50%").toString(),
-          });
+            });
+          }
 
           if (it.style) g.style = mergeArrayToArray(g.style, it.style);
           if (it.toe) g.toe = mergeArrayToArray(g.toe, it.toe);
@@ -1286,6 +1313,16 @@
 
         const out = Array.from(map.values());
         for (const g of out) {
+          if (window.CROPPED_IMAGES) {
+            const croppedNames = window.CROPPED_IMAGES[g.code] || [];
+            g.filenames = croppedNames.slice();
+            g.variants = croppedNames.map((filename) => ({
+              filename,
+              image: `cropped/${encodeURIComponent(filename)}`,
+              thumb: `cropped/${encodeURIComponent(filename)}`,
+              objectPosition: "50% 50%",
+            }));
+          }
           g.filenames = toArray(g.filenames);
           g.variants.sort(
             (a, b) => (variantOrder(a.filename) - variantOrder(b.filename)) || String(a.filename).localeCompare(String(b.filename))
@@ -2046,11 +2083,15 @@
           active = idx;
           const v = variants[idx] || {};
           const src = (v?.image ?? v?.thumb ?? item?.image ?? item?.thumb ?? "").toString();
-          drawerImgEl.src = src;
+          if (src) drawerImgEl.src = src;
+          else drawerImgEl.removeAttribute("src");
           drawerImgEl.alt = (v?.filename ?? item?.code ?? "").toString();
           drawerCopyValue = (v?.filename ?? item?.code ?? item?.filename ?? "").toString();
           stopDrawerVideo();
           showDrawerImage();
+
+          drawerImgEl.hidden = !src;
+          $("#drawerMissingImage").hidden = !!src;
 
           for (const btn of drawerThumbsEl.querySelectorAll("button[data-idx]")) {
             btn.classList.toggle("active", Number(btn.getAttribute("data-idx")) === idx);
@@ -2063,7 +2104,7 @@
         drawerThumbsEl.innerHTML = "";
 
         const uncensored = isUncensoredItem(item);
-        if (uncensored) {
+        if (uncensored && getVideoIndex()) {
           const vbtn = document.createElement("button");
           vbtn.type = "button";
           vbtn.className = "thumbBtn videoBtn";
@@ -2124,7 +2165,7 @@
           const title = r?.code || r?.filename || "";
           const count = Array.isArray(r?.variants) ? r.variants.length : Array.isArray(r?.filenames) ? r.filenames.length : 1;
           el.innerHTML = `
-            <img src="${escapeHtml(src)}" alt="${escapeHtml(title)}" loading="lazy" />
+            ${src ? `<img src="${escapeHtml(src)}" alt="${escapeHtml(title)}" loading="lazy" />` : '<div class="missingImage">尚無圖片</div>'}
             <div class="relMeta">
               <div class="relName">${escapeHtml(title)}${count > 1 ? ` <span class="badge">×${count}</span>` : ""}</div>
               <div class="tags" style="gap: 6px">
@@ -2161,14 +2202,14 @@
           const count = Array.isArray(item?.variants) ? item.variants.length : Array.isArray(item?.filenames) ? item.filenames.length : 1;
           const variants = Array.isArray(item?.variants) && item.variants.length ? item.variants : [];
           const fallbackSrc = (item?.image ?? item?.thumb ?? "").toString();
-          const imgs = (variants.length ? variants : [{ filename: item?.filename || title, image: fallbackSrc }]).map((v, i) => {
+          const imgs = (variants.length ? variants : fallbackSrc ? [{ filename: item?.filename || title, image: fallbackSrc }] : []).map((v, i) => {
             const src = (v?.image ?? v?.thumb ?? fallbackSrc ?? "").toString();
             const alt = `${title}${count > 1 ? ` #${i + 1}` : ""}`;
             return `<div class="thumbItem" data-idx="${i}"><img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" loading="lazy" /></div>`;
           });
 
           card.innerHTML = `
-            <div class="thumbList">${imgs.join("")}</div>
+            ${imgs.length ? `<div class="thumbList">${imgs.join("")}</div>` : '<div class="missingImage">尚無圖片</div>'}
             <div class="meta">
               <div class="filename">
                 <div>${escapeHtml(title)}${count > 1 ? ` <span class="badge">×${count}</span>` : ""}</div>
