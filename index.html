@@ -665,6 +665,13 @@
 
           <div class="field">
             <div class="group">
+              <div class="groupTitle">片商／系列</div>
+              <div class="checks" id="studioChecks"></div>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="group">
               <div class="groupTitle">款式</div>
               <div class="checks" id="styleChecks"></div>
             </div>
@@ -1366,7 +1373,18 @@
         return out;
       }
 
-      const data = groupByCode(ungrouped);
+      function studioFromCode(code) {
+        const value = String(code || "").trim().toUpperCase();
+        const suffix = value.match(/-(1PON|CARIBPR|CARIB)$/);
+        if (suffix) return suffix[1];
+        const prefix = value.match(/^\d*([A-Z]+)/);
+        return prefix ? prefix[1] : "其他";
+      }
+
+      const data = groupByCode(ungrouped).map((item) => ({
+        ...item,
+        studio: studioFromCode(item.code),
+      }));
       let displayOrder = data.slice();
       const gridEl = $("#grid");
       const presetsEl = $("#presets");
@@ -1400,6 +1418,7 @@
         { key: "toe", title: "鞋頭", mount: $("#toeChecks") },
         { key: "heelStyle", title: "鞋跟樣式", mount: $("#heelChecks") },
         { key: "censor", title: "碼別", mount: $("#censorChecks") },
+        { key: "studio", title: "片商／系列", mount: $("#studioChecks") },
         { key: "rare", title: "少見款式", mount: $("#rareChecks") },
         { key: "decoration", title: "裝飾", mount: $("#decChecks") },
         { key: "materialSimple", title: "材質", mount: $("#matChecks") },
@@ -1604,6 +1623,7 @@
         const names = Array.isArray(item?.filenames) ? item.filenames.join(" ") : item?.filename;
         const hay = [
           item?.code,
+          item?.studio,
           names,
           style,
           toe,
@@ -1628,6 +1648,7 @@
           inSelectedSet("toe", item?.toe) &&
           inSelectedSet("heelStyle", item?.heelStyle) &&
           inSelectedSet("censor", item?.censor) &&
+          inSelectedSet("studio", item?.studio) &&
           inSelectedSet("rare", item?.rare) &&
           inSelectedSet("decoration", item?.decoration) &&
           inSelectedSet("materialSimple", item?.materialSimple) &&
@@ -1677,6 +1698,19 @@
             label.style.display = cnt === 0 && !isSel ? "none" : "";
           }
         }
+        sortStudioChecks(counts.studio);
+      }
+
+      function sortStudioChecks(counts) {
+        const mount = $("#studioChecks");
+        const options = Array.from(mount.querySelectorAll("label.check"));
+        options.sort((left, right) => {
+          const leftValue = left.getAttribute("data-value");
+          const rightValue = right.getAttribute("data-value");
+          return (counts.get(rightValue) || 0) - (counts.get(leftValue) || 0) ||
+            leftValue.localeCompare(rightValue, "zh-Hant");
+        });
+        for (const option of options) mount.appendChild(option);
       }
 
       function apply() {
