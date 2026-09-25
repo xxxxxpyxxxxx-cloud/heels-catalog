@@ -1378,7 +1378,7 @@
         const suffix = value.match(/-(1PON|CARIBPR|CARIB)$/);
         if (suffix) return suffix[1];
         const prefix = value.match(/^\d*([A-Z]+)/);
-        return prefix ? prefix[1] : "其他";
+        return prefix ? prefix[1] : "DRP";
       }
 
       const data = groupByCode(ungrouped).map((item) => ({
